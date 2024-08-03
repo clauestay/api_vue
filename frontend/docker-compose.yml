@@ -1,0 +1,19 @@
+version: '3'
+services:
+  vue:
+    container_name: vue1
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    volumes:
+      - .:/app
+    networks:
+      - incancer
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    restart: always
+
+networks:
+  incancer:
+    external: true

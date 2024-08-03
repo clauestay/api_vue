@@ -1,0 +1,36 @@
+version: '3'
+services:
+  nginx:
+    container_name: nginx1
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+      - vue
+    restart: always
+
+  php:
+    container_name: php1
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+      - ./backend:/var/www/html
+    working_dir: /var/www/html
+    restart: always
+
+  vue:
+    container_name: vue1
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    volumes:
+      - ./frontend:/app
+    working_dir: /app
+    ports:
+      - "8080:80"
+    restart: always

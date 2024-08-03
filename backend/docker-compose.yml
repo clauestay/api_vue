@@ -1,0 +1,21 @@
+version: '3'
+services:
+  apache:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: apache1
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/php/api.conf:/etc/apache2/sites-available/000-default.conf
+      - ./backend:/var/www/html
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    working_dir: /var/www/html
+    restart: always
+    networks:
+      - incancer
+
+networks:
+  incancer:
+    driver: bridge
