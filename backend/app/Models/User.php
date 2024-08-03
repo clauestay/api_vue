@@ -6,10 +6,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Auth;
+
+use App\Models\GenProfesional;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
+
+    // esquema de conexion
+    protected $connection = 'GESTION';
+
+    // nombre de la tabla
+    protected $table = 'INTRANET.INT_USUARIOS';
+
+    // definiendo que esta sera la clave primaria.
+    protected $primaryKey = 'usuario_id';
 
     /**
      * The attributes that are mass assignable.
@@ -40,8 +53,38 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            // 'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getNameAttribute()
+    {
+        // tomara el valor de este campo.
+        return $this->attributes['nombre'];
+    }
+
+    public static function logearUsuario($credentials)
+    {
+        // buscar si existe el correo del usuario.
+        $user = User::where('login', $credentials['login'])->first();
+
+        if ($user && $user->password == $credentials['password']) {
+            // logear al usuario.
+            Auth::login($user);
+            // sanctum token
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            // api response user and token
+            return ['user' => $user, 'token' => $token];
+        } else {
+            return null;
+        }
+    }
+
+    // relaciones
+    public function codigoProfesional()
+    {
+        return $this->hasOne(GenProfesional::class, 'rut_prof', 'rut')->select('rut_prof','cod_prof')->where('vigencia', 'S');
     }
 }

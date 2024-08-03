@@ -112,6 +112,45 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        /*
+            aca definir las conexiones
+        */
+        'GESTION' => [
+            'driver' => 'oracle',
+            'host' => env('DB_HOST_GESTION', ''),
+            'port' => env('DB_PORT_GESTION', ''),
+            'database' => env('DB_DATABASE_GESTION', ''),
+            'username' => env('DB_USERNAME_GESTION', ''),
+            'password' => env('DB_PASSWORD_GESTION', ''),
+            'service_name' => env('DB_SERVICE_NAME_GESTION', ''),
+            'charset' => 'AL32UTF8',
+            'prefix' => '',
+        ],
+
+        'SINERGIA' => [
+            'driver' => 'oracle',
+            'host' => env('DB_HOST_SINERGIA', ''),
+            'port' => env('DB_PORT_SINERGIA', ''),
+            'database' => env('DB_DATABASE_SINERGIA', ''),
+            'username' => env('DB_USERNAME_SINERGIA', ''),
+            'password' => env('DB_PASSWORD_SINERGIA', ''),
+            'service_name' => env('DB_SERVICE_NAME_SINERGIA', ''),
+            'charset' => 'AL32UTF8',
+            'prefix' => '',
+        ],
+
+        'CGU60' => [
+            'driver' => 'oracle',
+            'host' => env('DB_HOST_CGU60', ''),
+            'port' => env('DB_PORT_CGU60', ''),
+            'database' => env('DB_DATABASE_CGU60', ''),
+            'username' => env('DB_USERNAME_CGU60', ''),
+            'password' => env('DB_PASSWORD_CGU60', ''),
+            'service_name' => env('DB_SERVICE_NAME_CGU60', ''),
+            'charset' => 'AL32UTF8',
+            'prefix' => '',
+        ],
+
     ],
 
     /*

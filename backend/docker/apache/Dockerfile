@@ -69,13 +69,13 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/
 
 # Instalar dependencias de Composer
-# RUN composer install --no-interaction --no-dev --optimize-autoloader
+RUN composer install --no-interaction --no-dev --optimize-autoloader
 
 # Generar la clave de la aplicación
-#RUN php artisan key:generate
+RUN php artisan key:generate
 
 # Configurar Sanctum
-#RUN php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+RUN php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
 
 
 # Habilitar el módulo de reescritura de Apache
