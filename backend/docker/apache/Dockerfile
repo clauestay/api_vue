@@ -66,10 +66,10 @@ COPY . .
 
 # Configurar permisos
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage
+    && chmod -R 755 /var/www/html/
 
 # Instalar dependencias de Composer
-RUN composer install --no-interaction --no-dev --optimize-autoloader
+# RUN composer install --no-interaction --no-dev --optimize-autoloader
 
 # Generar la clave de la aplicación
 #RUN php artisan key:generate
@@ -77,8 +77,6 @@ RUN composer install --no-interaction --no-dev --optimize-autoloader
 # Configurar Sanctum
 #RUN php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
 
-# Configurar Apache
-COPY ./docker/apache/api.conf /etc/apache2/sites-available/000-default.conf
 
 # Habilitar el módulo de reescritura de Apache
 RUN a2enmod rewrite
