@@ -1,27 +1,23 @@
 <template>
-    <div>
-      <ul>
-        <li v-for="item in data" :key="item.id">{{ item.name }}</li>
-      </ul>
-    </div>
-  </template>
+  <div>
+    <ul>
+      <li v-for="item in data" :key="item.id">{{ item.name }}</li>
+    </ul>
+  </div>
+</template>
 
-  <script>
-  import api from '@/services/api';
+<script>
+const { axios } = useAxios()
+const data = ref([])
 
-  export default {
-    data() {
-      return {
-        data: []
-      }
-    },
-    async mounted() {
-      try {
-        const response = await api.get('/data');
-        this.data = response.data;
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    }
+const fetchData = async () => {
+  try {
+    const response = await axios.get('/api/data')
+    data.value = response.data
+  } catch (error) {
+    console.error('Error fetching data:', error)
   }
-  </script>
+}
+
+onMounted(fetchData)
+</script>

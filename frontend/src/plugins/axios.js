@@ -1,0 +1,17 @@
+import axios from 'axios';
+
+export const axiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_APP_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  withCredentials: true
+})
+
+export default {
+  install: (app) => {
+    app.config.globalProperties.$axios = axiosInstance;
+    app.provide('axios', axiosInstance);
+  }
+};
