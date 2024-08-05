@@ -1,7 +1,9 @@
-import Swal from 'sweetalert2'
-import { router } from '@inertiajs/vue3';
+import Swal from 'sweetalert2';
+import { useRouter } from 'vue-router';
 
-// aca declarar todos los tipos de sweetalert a utilizar.
+const router = useRouter();
+
+// Declarar todos los tipos de SweetAlert a utilizar
 const alertaExito = (mensaje) => {
     Swal.fire({
         title: '¡Excelente!',
@@ -9,7 +11,7 @@ const alertaExito = (mensaje) => {
         icon: 'success',
         confirmButtonColor: 'blue'
     });
-}
+};
 
 const alertaError = (mensaje) => {
     Swal.fire({
@@ -18,16 +20,16 @@ const alertaError = (mensaje) => {
         icon: 'error',
         confirmButtonColor: 'blue'
     });
-}
+};
 
 const alertaInfo = (mensaje) => {
     Swal.fire({
-        title: '¡Información!',
+        title: '¡Información!',
         html: mensaje,
         icon: 'info',
         confirmButtonColor: 'blue'
     });
-}
+};
 
 const alertaErrores = (mensajes) => {
     let mensajeAlerta = '';
@@ -43,7 +45,7 @@ const alertaErrores = (mensajes) => {
         icon: 'error',
         confirmButtonColor: 'blue'
     });
-}
+};
 
 const alertaPregunta = (ruta, titulo, form) => {
     Swal.fire({
@@ -56,10 +58,10 @@ const alertaPregunta = (ruta, titulo, form) => {
         cancelButtonColor: 'red'
     }).then((result) => {
         if (result.isConfirmed) {
-            router.get(route(ruta, form));
+            router.push({ name: ruta, params: form });
         }
-    })
-}
+    });
+};
 
 export {
     alertaExito,
@@ -67,4 +69,4 @@ export {
     alertaInfo,
     alertaErrores,
     alertaPregunta
-}
+};

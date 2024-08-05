@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { alertaError, alertaExito } from '@/helpers/AlertasSweetAlert';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -12,21 +13,26 @@ export const useAuthStore = defineStore('auth', {
         async getToken() {
             await axios.get('/sanctum/csrf-cookie');
         },
-        async login(form){
-            await axios.getToken();
-            await axios.post('/login', form).then((response) => {
+        async login(login, password) {
+            // await axios.getToken();
+            await axios.post('http://localhost:80/api/login', {
+                    login: login,
+                    password: password
+                }).then((response) => {
                 this.authUser = response.data.user;
                 this.authToken = response.data.token;
-                this.router.push({ name: 'inicio' });
-                // localStorage.setItem('authUser', JSON.stringify(this.authUser));
-                // localStorage.setItem('authToken', this.authToken);
+                alertaExito('Usuario autenticado con exito!');
+                setTimeout(() => {
+                    this.router.push({ name: 'Inicio' });
+                })
             }).catch((error) => {
-                console.log(error);
-                    let message = '';
-                    error.response.data.errors.map(
-                        (e) => (message = message + ' '+e)
-                    )
-                    console.log(message);
+                let message = '';
+                error.response.data.errors.map(
+                    (e) => (message = message + ' '+e)
+                )
+                console.log(message);
+                alertaError(message);
+                // this.router.push({ name: 'Error' });
             });
         },
         async logout() {
@@ -34,8 +40,6 @@ export const useAuthStore = defineStore('auth', {
             this.authUser = null;
             this.authToken = null;
             this.router.push('/login');
-            // localStorage.removeItem('authToken');
-            // window.location.href = '/login';
         }
     },
     presist: true

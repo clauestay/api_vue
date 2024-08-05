@@ -1,14 +1,18 @@
 <script setup>
-import { ref } from 'vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link, usePage } from '@inertiajs/vue3';
-import HoraActual from '@/Components/HoraActual.vue';
-import Label from '@/Components/InputLabel.vue';
+import { ref, computed } from 'vue';
+import Dropdown from '@/components/Dropdown.vue';
+import DropdownLink from '../components/DropdownLink.vue';
+// import ResponsiveNavLink from '../../components/ResponsiveNavLink.vue';
+// import { Link, usePage } from '@inertiajs/vue3';
+import HoraActual from '@/components/HoraActual.vue';
+import Label from '@/components/InputLabel.vue';
+import { useAuthStore } from '@/stores/auth';
 
 const showingNavigationDropdown = ref(false);
-const user = usePage().props.auth.user;
+
+const authStore = useAuthStore();
+// const user = computed(() => authStore.user);
+const user = {nombre: 'nombre', apellido: 'apellido', email: 'email'};
 const toggleDropdown = () => {
     showingNavigationDropdown.value = !showingNavigationDropdown.value;
 };
@@ -24,9 +28,9 @@ const toggleDropdown = () => {
                         <div class="flex">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
-                                <Link :href="route('dashboard')" class="text-red-500">
+                                <router-link to="/dashboard" class="text-red-500">
                                 Instituto Nacional del Cáncer
-                                </Link>
+                                </router-link>
                             </div>
 
                             <!-- Navigation Links -->
@@ -76,9 +80,9 @@ const toggleDropdown = () => {
 
                                     <template #content>
                                         <!-- <DropdownLink :href="route('profile.edit')"> Perfil </DropdownLink> -->
-                                        <DropdownLink :href="route('logout')" method="post" as="button">
+                                        <!-- <DropdownLink :href="route('logout')" method="post" as="button">
                                             Cerrar sesión
-                                        </DropdownLink>
+                                        </DropdownLink> -->
                                     </template>
                                 </Dropdown>
                             </div>
@@ -110,9 +114,9 @@ const toggleDropdown = () => {
                 <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
                     class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
+                        <!-- <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
-                        </ResponsiveNavLink>
+                        </ResponsiveNavLink> -->
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -128,9 +132,9 @@ const toggleDropdown = () => {
 
                         <div class="mt-3 space-y-1">
                             <!-- <ResponsiveNavLink :href="route('profile.edit')"> Perfil </ResponsiveNavLink> -->
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
+                            <!-- <ResponsiveNavLink :href="route('logout')" method="post" as="button">
                                 Cerrar sesión
-                            </ResponsiveNavLink>
+                            </ResponsiveNavLink> -->
                         </div>
                     </div>
                 </div>

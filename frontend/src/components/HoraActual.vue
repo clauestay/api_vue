@@ -14,7 +14,7 @@
   </template>
 
   <script setup>
-  import { useCurrentTime } from '@/Helpers/UseCurrentTime.js';
+  import { useCurrentTime } from '../helpers/UseCurrentTime.js';
   const { currentTime } = useCurrentTime();
 
   defineProps({

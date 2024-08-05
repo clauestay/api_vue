@@ -187,8 +187,8 @@ class ComposerStaticInit7bda50acfaac41a19518426a66bcd020
         ),
         'Yajra\\' => 
         array (
-            0 => __DIR__ . '/..' . '/yajra/laravel-pdo-via-oci8/src',
-            1 => __DIR__ . '/..' . '/yajra/laravel-oci8/src',
+            0 => __DIR__ . '/..' . '/yajra/laravel-oci8/src',
+            1 => __DIR__ . '/..' . '/yajra/laravel-pdo-via-oci8/src',
         ),
         'Whoops\\' => 
         array (

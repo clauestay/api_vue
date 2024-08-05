@@ -8,6 +8,7 @@ import { createPersistedState } from 'pinia-plugin-persistedstate'
 import axios from 'axios'
 import App from './App.vue'
 import router from './router'
+import { createHead } from "@vueuse/head"
 
 window.axios = axios
 
@@ -25,7 +26,9 @@ pinia.use(createPersistedState)
 
 const app = createApp(App)
 
+const head = createHead()
+
 app.use(pinia)
 app.use(router)
-
+app.use(head)
 app.mount('#app')

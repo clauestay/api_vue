@@ -1,5 +1,5 @@
 <script setup>
-import ManualPDF from '@/Components/ManualPDF.vue';
+import ManualPDF from '@/components/ManualPDF.vue';
 
   const props = defineProps({
     imagenUrl: {
