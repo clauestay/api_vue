@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\EntregaTurno;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -18,4 +19,6 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/example', function () {
     return response()->json(['message' => 'Hello World!']);
 });
+
+Route::get('/listadoTurnos', [EntregaTurno::class, 'listadoTurnos'])->middleware('auth:sanctum');
 

@@ -36,11 +36,14 @@ export const useAuthStore = defineStore('auth', {
             });
         },
         async logout() {
-            await axios.post('/logout', this.authToken);
+            await axios.post('http://localhost:80/api/logout', this.authToken);
             this.authUser = null;
             this.authToken = null;
             this.router.push('/login');
         }
     },
-    presist: true
+    // presist: true
+    persist: {
+        storage: localStorage,
+      },
 });

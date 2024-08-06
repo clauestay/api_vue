@@ -63,10 +63,26 @@ const alertaPregunta = (ruta, titulo, form) => {
     });
 };
 
+const alertaConfirmacion = (name, url, redirect) => {
+    const alert = Swal.mixin({buttonsStyling: true});
+    alert.fire({
+        title: titulo,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // sendRequest('DELETE')
+        }
+    });
+};
+
 export {
     alertaExito,
     alertaError,
     alertaInfo,
     alertaErrores,
-    alertaPregunta
+    alertaPregunta,
+    alertaConfirmacion
 };

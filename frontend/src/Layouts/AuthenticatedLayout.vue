@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue';
 import Dropdown from '@/components/Dropdown.vue';
-import DropdownLink from '../components/DropdownLink.vue';
-// import ResponsiveNavLink from '../../components/ResponsiveNavLink.vue';
+import DropdownLink from '@/components/DropdownLink.vue';
+import ResponsiveNavLink from '@/components/ResponsiveNavLink.vue';
 // import { Link, usePage } from '@inertiajs/vue3';
 import HoraActual from '@/components/HoraActual.vue';
 import Label from '@/components/InputLabel.vue';
@@ -11,8 +11,8 @@ import { useAuthStore } from '@/stores/auth';
 const showingNavigationDropdown = ref(false);
 
 const authStore = useAuthStore();
-// const user = computed(() => authStore.user);
-const user = {nombre: 'nombre', apellido: 'apellido', email: 'email'};
+const user = computed(() => authStore.user);
+// const user = {nombre: 'nombre', apellido: 'apellido', email: 'email'};
 const toggleDropdown = () => {
     showingNavigationDropdown.value = !showingNavigationDropdown.value;
 };
@@ -28,7 +28,7 @@ const toggleDropdown = () => {
                         <div class="flex">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
-                                <router-link to="/dashboard" class="text-red-500">
+                                <router-link to="/inicio" class="text-red-500">
                                 Instituto Nacional del Cáncer
                                 </router-link>
                             </div>
@@ -83,6 +83,7 @@ const toggleDropdown = () => {
                                         <!-- <DropdownLink :href="route('logout')" method="post" as="button">
                                             Cerrar sesión
                                         </DropdownLink> -->
+                                        <DropdownLink to="/logout" method="post" as="button"> Cerrar sesión </DropdownLink>
                                     </template>
                                 </Dropdown>
                             </div>
@@ -117,6 +118,9 @@ const toggleDropdown = () => {
                         <!-- <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
                         </ResponsiveNavLink> -->
+                    <ResponsiveNavLink href="/inicio" active="/inicio" >
+                        Dashboard
+                    </ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -135,6 +139,7 @@ const toggleDropdown = () => {
                             <!-- <ResponsiveNavLink :href="route('logout')" method="post" as="button">
                                 Cerrar sesión
                             </ResponsiveNavLink> -->
+                            <router-link to="/logout" method="post" as="button"> Cerrar sesión </router-link>
                         </div>
                     </div>
                 </div>

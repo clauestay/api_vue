@@ -1,9 +1,10 @@
-import './assets/main.css'
+// import './assets/main.css'
 import './assets/tailwind.css'
 
 import { createApp, markRaw } from 'vue'
 import { createPinia } from 'pinia'
-import { createPersistedState } from 'pinia-plugin-persistedstate'
+// import { createPersistedState } from 'pinia-plugin-persistedstate'
+import piniaPluginPersistedState from 'pinia-plugin-persistedstate'
 // import axiosPlugin from './plugins/axios'
 import axios from 'axios'
 import App from './App.vue'
@@ -22,7 +23,8 @@ const pinia = createPinia()
 pinia.use(({store}) => {
     store.router = markRaw(router)
 })
-pinia.use(createPersistedState)
+// pinia.use(createPersistedState)
+pinia.use(piniaPluginPersistedState)
 
 const app = createApp(App)
 
