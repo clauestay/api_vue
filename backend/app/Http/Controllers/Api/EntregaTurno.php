@@ -48,9 +48,38 @@ class EntregaTurno extends Controller
         });
 
         return response()->json([
-            'titulo' => 'Listado de turnos',
             'turnos' => $turnos,
-            'filters' => $request->only('search'),
         ]);
+    }
+
+    public function misTurnos(Request $request): JsonResponse
+    {
+        // obtener rut del usuario logeado.
+        $rut = $request->user()->rut;
+
+        // obtener el codigo de profesional del usuario logeado.
+        $usuario = User::where('rut', $rut)->with('codigoProfesional')->first();
+
+        if($usuario && $usuario->codigoProfesional?->cod_prof) {
+            $cod_prof = $usuario->codigoProfesional->cod_prof;
+            $search = $request->input('search', null);
+            $pageSize = $request->input('pagesize', 10);
+            $misTurnos = RpCambioTurno::getMisTurnos($cod_prof, $search, $pageSize);
+            $misTurnos->transform(function ($turno) {
+                // formato de fecha
+                $turno->fecha_llegada = Carbon::parse($turno->fecha_llegada)->format('d-m-Y H:i');
+                $turno->fecha_salida = Carbon::parse($turno->fecha_salida)->format('d-m-Y H:i');
+                return $turno;
+            });
+
+            return response()->json([
+                "turnos" => $misTurnos,
+
+            ]);
+        } else {
+            return response()->json([
+                "error" => "No tiene asignado un Código de Profesional."
+            ], 400);
+        }
     }
 }

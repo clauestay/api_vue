@@ -75,7 +75,7 @@ class RpCambioTurno extends Model
             });
         }
 
-        return $query->paginate(10)->onEachSide(2);
+        return $query->paginate()->onEachSide(2);
     }
 
     // funciones

@@ -70,25 +70,14 @@ const cols =
     { field: "actions", title: "Acciones", filter: false, sort: false },
   ]) || [];
 
-// let controller;
-
 const getListadoTurnos = async () => {
   NProgress.start();
   loading.value = true;
   try {
-
-    // if (controller) {
-    //   controller.abort();
-    // }
-    // constroller = new AbortController();
-    // const signal = controller.signal;
-
     const response = await axios.get("http://localhost:80/api/listadoTurnos", {
-      params: { ...params },
-      // signal: signal,
+      params: { ...params }
     });
 
-    console.log(response.data);
     turnos.value = response.data.turnos.data;
     total_rows.value = response.data.turnos.total;
   } catch (error) {
@@ -112,24 +101,9 @@ const changeServer = (data) => {
 // const search = ref(props.filters.search);
 const router = useRouter();
 
-// watch(
-//   search,
-//   debounce(() => {
-//     router.push({
-//       name: "entregaTurno.listadoTurnos",
-//       query: { search: search.value },
-//     });
-//   }, 300)
-// );
-
 const detalle_turno = (id_turno) => {
-  router.push({ name: "entregaTurno.detalleTurno", params: { id: id_turno } });
+  router.push({ name: "detalle-turno", params: { id: id_turno } });
 };
-
-// ejemplo
-// const detalle_turno2 = (id, name) => {
-//     alertaConfirmacion(name,('/api/detalleTurno/'+id), '/detalleTurno');
-// }
 
 onMounted(() => {
   getListadoTurnos();
@@ -161,15 +135,14 @@ onMounted(() => {
               <div class="flex flex-col">
                 <div>
                   <div class="text-center pb-2">
-                    <!-- <Label class="text-2xl text-gris-dark">{{ titulo }}</Label> -->
                   </div>
                   <div class="min-w-full border-b shadow overflow-x-auto">
                     <div class="mb-5">
                       <input
                         v-model="params.search"
                         type="text"
-                        class="form-input max-w-xs"
-                        placeholder="Search..."
+                        placeholder="Buscar..."
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-60 p-2.5"
                       />
                     </div>
                     <div class="row">
@@ -190,6 +163,19 @@ onMounted(() => {
                           noDataComponent="No se encontraron resultados."
                           @change="changeServer"
                         >
+                        <template #id="data">
+                          <strong>#{{ data.value.id_cambio_turno }}</strong>
+                        </template>
+                          <template #actions="data">
+                            <div class="flex gap-4">
+                              <div
+                                class="inline-flex gap-2"
+                                @click="detalle_turno(data.value.id_cambio_turno)"
+                              >
+                                <IconIr title="Ver" />
+                              </div>
+                            </div>
+                          </template>
                         </vue3-datatable>
                       </div>
                     </div>

@@ -5,27 +5,29 @@ import { useRouter } from 'vue-router';
 // Router para la navegación
 const router = useRouter();
 
-defineProps({
+const props = defineProps({
     data: {
         type: Object,
         default: () => ({}),
     },
 });
+
+console.log(props.data);
 </script>
 
 <template>
-    <nav v-if="data.links.length > 3" role="navigation" aria-label="Pagination Navigation"
+    <nav v-if="props.data.links.length > 3" role="navigation" aria-label="Pagination Navigation"
         class="flex items-center justify-between">
         <div class="flex justify-between flex-1 sm:hidden">
-            <span v-if="data.current_page <= 1"
+            <span v-if="props.data.current_page <= 1"
                 class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
                 Previous
             </span>
-            <router-link v-else :to="data.prev_page_url"
+            <router-link v-else :to="props.data.prev_page_url"
                 class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
             Previous
             </router-link>
-            <router-link v-if="data.current_page < data.last_page" :to="data.next_page_url"
+            <router-link v-if="props.data.current_page < props.data.last_page" :to="props.data.next_page_url"
                 class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
             Next
             </router-link>
@@ -38,17 +40,17 @@ defineProps({
             <div>
                 <p class="text-sm text-gray-700 leading-5">
                     Mostrando
-                    <span class="font-medium">{{ data.from }}</span>
+                    <span class="font-medium">{{ props.data.from }}</span>
                     para
-                    <span class="font-medium">{{ data.to }}</span>
+                    <span class="font-medium">{{ props.data.to }}</span>
                     de
-                    <span class="font-medium">{{ data.total }}</span>
+                    <span class="font-medium">{{ props.data.total }}</span>
                     resultados
                 </p>
             </div>
             <div>
                 <span class="relative z-0 inline-flex shadow-sm rounded-md">
-                    <span v-if="data.current_page <= 1" aria-disabled="true" aria-label="Previous">
+                    <span v-if="props.data.current_page <= 1" aria-disabled="true" aria-label="Previous">
                         <span
                             class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-l-md leading-5"
                             aria-hidden="true">
@@ -59,7 +61,7 @@ defineProps({
                             </svg>
                         </span>
                     </span>
-                    <router-link v-else :to="data.prev_page_url" rel="prev"
+                    <router-link v-else :to="props.data.prev_page_url" rel="prev"
                         class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150"
                         aria-label="Previous">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -68,8 +70,8 @@ defineProps({
                                 clip-rule="evenodd" />
                         </svg>
                     </router-link>
-                    <template v-for="(link, key) in data.links">
-                        <template v-if="key > 0 && key < data.last_page + 1">
+                    <template v-for="(link, key) in props.data.links">
+                        <template v-if="key > 0 && key < props.data.last_page + 1">
                             <span v-if="!link.active && link.url === null" :key="key" aria-disabled="true">
                                 <span
                                     class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 cursor-default leading-5">{{ link.label }}</span>
@@ -83,7 +85,7 @@ defineProps({
                                 :aria-label="`Go to page ${link.label}`" />
                         </template>
                     </template>
-                    <router-link v-if="data.current_page < data.last_page" :to="data.next_page_url" rel="next"
+                    <router-link v-if="props.data.current_page < props.data.last_page" :to="props.data.next_page_url" rel="next"
                         class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150"
                         aria-label="Next">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

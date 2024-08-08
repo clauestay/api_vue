@@ -20,5 +20,10 @@ Route::get('/example', function () {
     return response()->json(['message' => 'Hello World!']);
 });
 
-Route::get('/listadoTurnos', [EntregaTurno::class, 'listadoTurnos'])->middleware('auth:sanctum');
+//grupo de listado de rutas con middleware auth:sanctum
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/listadoTurnos', [EntregaTurno::class, 'listadoTurnos']);
+    Route::get('/misTurnos', [EntregaTurno::class, 'misTurnos']);
+});
+
 

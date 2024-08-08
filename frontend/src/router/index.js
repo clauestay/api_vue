@@ -26,11 +26,6 @@ const router = createRouter({
       component: () => import('../views/EntregaTurno/Crear.vue')
     },
     {
-      path: '/editar/:id',
-      name: 'Editar',
-      component: () => import('../views/EntregaTurno/Editar.vue')
-    },
-    {
       path: '/misTurnos',
       name: 'MisTurnos',
       component: () => import('../views/EntregaTurno/MisTurnos.vue')
@@ -39,6 +34,16 @@ const router = createRouter({
       path: '/listadoTurnos',
       name: 'Listadoturnos',
       component: () => import('../views/EntregaTurno/ListadoTurnos.vue')
+    },
+    {
+      path: '/editar/:id',
+      name: 'Editar',
+      component: () => import('../views/EntregaTurno/Editar.vue')
+    },
+    {
+      path: '/detalle-turno/:id',
+      name: 'Detalle-turno',
+      component: () => import('../views/EntregaTurno/Detalle.vue')
     }
   ]
 })
