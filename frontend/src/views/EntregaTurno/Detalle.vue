@@ -5,21 +5,28 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Banner from "@/components/Banner.vue";
 import Label from '@/components/InputLabel.vue';
 import FooterInc from "@/components/FooterInc.vue";
+import Button from 'primevue/button';
+import { useHead } from "@vueuse/head";
+import {
+  alertaExito,
+  alertaError,
+  alertaErrores,
+} from "@/helpers/AlertasSweetAlert";
+import { onMounted } from 'vue';
+import { useAuthStore } from "@/stores/auth";
+import dayjs from 'dayjs';
+
+const authStore = useAuthStore();
+axios.defaults.headers.common["Authorization"] =
+  "Bearer " + authStore.authToken;
+
+useHead({ title: "Mis turnos" });
+
+const router = useRoute();
+const id_turno = router.params.id;
 
 // Define props
 const props = defineProps({
-    turno: {
-        type: Object,
-        default: () => ({}),
-    },
-    fecha_llegada: {
-        type: Object,
-        default: () => ({}),
-    },
-    fecha_salida: {
-        type: Object,
-        default: () => ({}),
-    },
     ruta: {
         type: Object,
         default: () => ({}),
@@ -42,7 +49,73 @@ const props = defineProps({
     },
 });
 
+const goBack = () => {
+    window.history.back();
+};
+
+const error = ref(null);
+const turno = ref([]);
+const entregados = ref([]);
+const traslados = ref([]);
+
+const obtenerTurno = async (id_turno) => {
+    try {
+        const response = await axios.get(`/obtenerTurno/${id_turno}`);
+        turno.value = response.data.turno;
+        console.log(turno.value);
+        await obtenerEntregados(id_turno);
+        await obtenerTraslados(id_turno);
+    } catch (err) {
+    console.log(err);
+    if (error.response && err.response.data) {
+      error.value = err.response.data.error;
+      alertaError(error.value);
+    } else {
+      error.value = "Error al obtener el listado de los turnos.";
+      alertaError(error.value);
+    }
+  }
+}
+
+const obtenerEntregados = async (id_turno) => {
+    try {
+        const response = await axios.get(`/obtenerEntregados/${id_turno}`);
+        entregados.value = response.data.entregados;
+        console.log(entregados.value);
+    } catch (err) {
+    console.log(err);
+    if (error.response && err.response.entregados) {
+      error.value = err.response.data.error;
+      alertaError(error.value);
+    } else {
+      error.value = "Error al obtener el listado de los pacientes entregados.";
+      alertaError(error.value);
+    }
+  }
+}
+
+const obtenerTraslados = async (id_turno) => {
+    try {
+        const response = await axios.get(`/obtenerTraslados/${id_turno}`);
+        traslados.value = response.data.traslados;
+        console.log(traslados.value);
+    } catch (err) {
+    console.log(err);
+    if (error.response && err.response.traslados) {
+      error.value = err.response.data.error;
+      alertaError(error.value);
+    } else {
+      error.value = "Error al obtener el listado de los pacientes trasladados.";
+      alertaError(error.value);
+    }
+  }
+}
+
 const sinInfo = "Sin información";
+
+onMounted(() => {
+    obtenerTurno(id_turno);
+})
 </script>
 
 <template>
@@ -55,10 +128,10 @@ const sinInfo = "Sin información";
                 <div class="bg-white overflow-hidden shadow-2xl sm:rounded-lg">
                     <div>
                         <div class="p-6 bg-white border-gray-200 mt-6">
-                            <router-link :to="props.ruta"
+                            <Button @click="goBack()"
                                 class="text-white bg-naranjo-light hover:bg-naranjo-dark focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">
                             Volver
-                            </router-link>
+                        </Button>
                         </div>
                         <div class="text-center pb-2">
                             <Label class="text-2xl font-semibold uppercase text-gris-dark">Detalle entrega turno</Label>
@@ -75,10 +148,10 @@ const sinInfo = "Sin información";
                                                 <div class="md:w-1/2">
                                                     <div class="mx-10">
                                                         <Label class="text-gris-dark">
-                                                            <!-- {{ turno.medico_entrega.nombre1_prof }}
-                                                            {{ turno.medico_entrega.nombre2_prof }}
-                                                            {{ turno.medico_entrega.apepat_prof }}
-                                                            {{ turno.medico_entrega.apemat_prof }} -->
+                                                            {{ turno.medico_entrega?.nombre1_prof }}
+                                                            {{ turno.medico_entrega?.nombre2_prof }}
+                                                            {{ turno.medico_entrega?.apepat_prof }}
+                                                            {{ turno.medico_entrega?.apemat_prof }}
                                                         </Label>
                                                     </div>
                                                 </div>
@@ -90,10 +163,10 @@ const sinInfo = "Sin información";
                                                 <div class="md:w-1/2">
                                                     <div class="mx-10">
                                                         <Label class="text-gris-dark">
-                                                            <!-- {{ turno.medico_recibe.nombre1_prof }}
-                                                            {{ turno.medico_recibe.nombre2_prof }}
-                                                            {{ turno.medico_recibe.apepat_prof }}
-                                                            {{ turno.medico_recibe.apemat_prof }} -->
+                                                            {{ turno.medico_recibe?.nombre1_prof }}
+                                                            {{ turno.medico_recibe?.nombre2_prof }}
+                                                            {{ turno.medico_recibe?.apepat_prof }}
+                                                            {{ turno.medico_recibe?.apemat_prof }}
                                                         </Label>
                                                     </div>
                                                 </div>
@@ -105,7 +178,7 @@ const sinInfo = "Sin información";
                                                 <div class="md:w-1/2">
                                                     <div class="mx-10">
                                                         <Label class="text-gris-dark">
-                                                            <!-- {{ fecha_llegada }} -->
+                                                            {{ turno?.fecha_llegada ? dayjs(turno.fecha_llegada).format('DD-MM-YYYY HH:mm') : '-' }}
                                                         </Label>
                                                     </div>
                                                 </div>
@@ -117,7 +190,7 @@ const sinInfo = "Sin información";
                                                 <div class="md:w-1/2">
                                                     <div class="mx-10">
                                                         <Label class="text-gris-dark">
-                                                            <!-- {{ fecha_salida }} -->
+                                                            {{ turno?.fecha_salida ? dayjs(turno.fecha_salida).format('DD-MM-YYYY HH:mm') : '-' }}
                                                         </Label>
                                                     </div>
                                                 </div>
@@ -161,7 +234,7 @@ const sinInfo = "Sin información";
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="entregado in props.entregados" :key="entregado.rut">
+                                                <tr v-for="entregado in entregados" :key="entregado.rut">
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">
                                                         <div class="px-2">
                                                             <Label class="text-gris-dark">{{ entregado.rut }}-{{ entregado.digito }}</Label>
@@ -190,7 +263,7 @@ const sinInfo = "Sin información";
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <div v-if="props.entregados.length === 0" class="w-full">
+                                        <div v-if="entregados.length === 0" class="w-full">
                                             <div class="px-2 border-y">
                                                 <div class="px-4 flex justify-center items-center text-center">
                                                     <Label class="font-bold text-gris-dark">No se encontraron pacientes entregados.</Label>
@@ -225,7 +298,7 @@ const sinInfo = "Sin información";
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="traslado in props.traslados" :key="traslado.run">
+                                                <tr v-for="traslado in traslados" :key="traslado.run">
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">
                                                         <div class="px-2">
                                                             <Label class="text-gris-dark">{{ traslado.run }}</Label>
@@ -272,7 +345,7 @@ const sinInfo = "Sin información";
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <div v-if="props.traslados.length === 0" class="w-full">
+                                        <div v-if="traslados.length === 0" class="w-full">
                                             <div class="px-2 border-y">
                                                 <div class="px-4 flex justify-center items-center text-center">
                                                     <Label class="font-bold text-gris-dark">No se registraron pacientes trasladados.</Label>
@@ -426,7 +499,7 @@ const sinInfo = "Sin información";
                                         <div class="mx-10 md:flex mb-6">
                                             <div class="md:w-1/2 px-3 mb-6 md:mb-0">
                                                 <Label class="font-bold text-gris-dark">Cantidad entregados</Label>
-                                                <Label class="text-gris-dark">{{ props.entregados.length }}</Label>
+                                                <Label class="text-gris-dark">{{ entregados.length }}</Label>
                                             </div>
                                             <div class="md:w-1/2 px-3 mb-6 md:mb-0">
                                                 <Label class="font-bold text-gris-dark">Cantidad cirugías realizadas por residencia</Label>

@@ -9,6 +9,7 @@ module.exports = {
   prefix: "",
 
   content: [
+    "./presets/**/*.{js,vue,ts}",
     './pages/**/*.{js,jsx,vue}',
     './components/**/*.{js,jsx,vue}',
     './app/**/*.{js,jsx,vue}',
@@ -110,5 +111,5 @@ module.exports = {
       },
     },
   },
-  plugins: [animate, forms],
+  plugins: [animate, forms, require('tailwindcss-primeui')],
 }

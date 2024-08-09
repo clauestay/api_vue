@@ -82,4 +82,82 @@ class EntregaTurno extends Controller
             ], 400);
         }
     }
+
+    public function obtenerTurno($id): JsonResponse
+    {
+        if (!$id) {
+            return response()->json([
+                "error" => "Hubo un error con el identificador del turno."
+            ], 400);
+        }
+
+        $turno = RpCambioTurno::getTurno($id);
+        if (!$turno) {
+            return response()->json([
+                "error" => "No se pudo encontrar el turno."
+            ], 400);
+        }
+
+        return response()->json([
+            "turno" => $turno
+        ]);
+    }
+
+    public function obtenerEntregados($id): JsonResponse
+    {
+        if (!$id) {
+            return response()->json([
+                "error" => "Hubo un error con el identificador del turno."
+            ], 400);
+        }
+
+        $entregados = RpDetCambioTurno::getEntregadosTurno($id);
+        if (!$entregados) {
+            return response()->json([
+                "error" => "No se pudo encontrar los pacientes entregados."
+            ], 400);
+        }
+
+        $entregados->map(function ($entregado) {
+            $paciente = Paciente::datosPacienteRut($entregado->rut);
+            $entregado->nombre_completo = $paciente->nombre_completo;
+            $entregado->diagnostico = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+            return $entregado;
+        });
+
+        return response()->json([
+            "entregados" => $entregados
+        ]);
+    }
+
+    public function obtenerTraslados($id): JsonResponse
+    {
+        if (!$id) {
+            return response()->json([
+                "error" => "Hubo un error con el identificador del turno."
+            ], 400);
+        }
+
+        $traslados = RpDetCtTraslados::getTrasladosTurno($id);
+        if (!$traslados) {
+            return response()->json([
+                "error" => "No se pudo encontrar los pacientes trasladados."
+            ], 400);
+        }
+
+        $traslados = $traslados->map(function ($traslado) {
+            $paciente = Paciente::datosPacienteRut($traslado['rut']);
+            $traslado['nombre_completo'] = $paciente->nombre_completo;
+            $traslado['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+            $detalle = $traslado['detalle'];
+            $detalle['cod_unidad_origen'] = RpDetCtTraslados::getDescripcionUnidadPorCodigo($detalle['cod_unidad_origen']);
+            $detalle['cod_unidad_destino'] = RpDetCtTraslados::getDescripcionUnidadPorCodigo($detalle['cod_unidad_destino']);
+            $traslado['detalle'] = $detalle;
+            return $traslado;
+        });
+
+        return response()->json([
+            "traslados" => $traslados
+        ]);
+    }
 }

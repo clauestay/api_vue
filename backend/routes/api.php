@@ -24,6 +24,9 @@ Route::get('/example', function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/listadoTurnos', [EntregaTurno::class, 'listadoTurnos']);
     Route::get('/misTurnos', [EntregaTurno::class, 'misTurnos']);
+    Route::get('/obtenerTurno/{id}', [EntregaTurno::class, 'obtenerTurno']);
+    Route::get('/obtenerEntregados/{id}', [EntregaTurno::class, 'obtenerEntregados']);
+    Route::get('/obtenerTraslados/{id}', [EntregaTurno::class, 'obtenerTraslados']);
 });
 
 
