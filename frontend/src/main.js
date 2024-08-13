@@ -8,7 +8,8 @@ import App from './App.vue'
 import router from './router'
 import { createHead } from "@vueuse/head"
 import PrimeVue from 'primevue/config';
-// import dayjs from 'dayjs';
+import Aura from '@/presets/aura';
+// import Lara from '@/presets/lara';
 
 window.axios = axios
 window.axios.defaults.baseURL = import.meta.env.VITE_APP_API_URL
@@ -21,18 +22,16 @@ const pinia = createPinia()
 pinia.use(({store}) => {
     store.router = markRaw(router)
 })
-// pinia.use(createPersistedState)
 pinia.use(piniaPluginPersistedState)
 
 const app = createApp(App)
-
 const head = createHead()
 
 app.use(pinia)
 app.use(router)
 app.use(head)
 app.use(PrimeVue, {
-    unstyled: true
-})
-// app.config.globalProperties.$dayjs = dayjs
+    unstyled: true,
+    pt: Aura
+});
 app.mount('#app')

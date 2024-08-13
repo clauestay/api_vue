@@ -71,11 +71,13 @@ class User extends Authenticatable
 
         if ($user && $user->password == $credentials['password']) {
             // logear al usuario.
+            $user->load('codigoProfesional');
             Auth::login($user);
             // sanctum token
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            // api response user and token
+            // api response user with codigoProfesional and token
+
             return ['user' => $user, 'token' => $token];
         } else {
             return null;

@@ -1,72 +1,34 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Banner from '@/components/Banner.vue';
 import EntregaTurnoForm from '@/views/EntregaTurno/Form.vue';
 import FooterInc from '@/components/FooterInc.vue';
 import { alertaExito, alertaError, alertaErrores } from '@/helpers/AlertasSweetAlert';
 
-const props = defineProps({
-    turno: {
-        type: Object,
-        default: () => ({})
-    },
-    fecha_entrada: {
-        type: Array,
-        default: () => ({}),
-    },
-    fecha_salida: {
-        type: Array,
-        default: () => ({}),
-    },
-    cirugias: {
-        type: Array,
-        default: () => ({}),
-    },
-    entregados: {
-        type: Array,
-        default: () => ({}),
-    },
-    traslados: {
-        type: Array,
-        default: () => ({}),
-    },
-    fallecidos: {
-        type: Array,
-        default: () => ({}),
-    },
-    medico_entrega: {
-        type: Object,
-        default: () => ({})
-    },
-    medico_recibe: {
-        type: Object,
-        default: () => ({})
-    },
-    medicos: {
-        type: Array,
-        default: () => ({}),
-    },
-    unidades: {
-        type: Array,
-        default: () => ({}),
-    }
-});
+const turno = ref({});
+const cirugias = ref({});
+const entregados = ref({});
+const traslados = ref({});
+const fallecidos = ref({});
+const medico_entrega = ref({});
+const medico_recibe = ref({});
+const medicos = ref({});
+const unidades = ref({});
 
 const form = ref({
-    turno: props.turno,
-    entregados: props.entregados,
-    traslados: props.traslados,
-    fallecidos: props.fallecidos,
-    cirugias: props.cirugias,
-    novedades: props.turno.novedades,
-    reemplazante: props.turno.reemplazante,
-    medico_entrega: props.medico_entrega,
-    medico_recibe: props.medico_recibe,
-    fecha_entrada: props.fecha_entrada,
-    fecha_salida: props.fecha_salida,
+    turno: turno,
+    entregados: entregados,
+    traslados: traslados,
+    fallecidos: fallecidos,
+    cirugias: cirugias,
+    novedades: turno.novedades,
+    reemplazante: turno.reemplazante,
+    medico_entrega: medico_entrega,
+    medico_recibe: medico_recibe,
+    // fecha_entrada: fecha_entrada,
+    // fecha_salida: fecha_salida,
 });
 
 const router = useRouter();
@@ -86,7 +48,7 @@ const submit = async () => {
 };
 </script>
 
-<style src="vue-multiselect/dist/vue-multiselect.css"></style>
+<!-- <style src="vue-multiselect/dist/vue-multiselect.css"></style> -->
 
 <template>
     <AuthenticatedLayout>
@@ -106,8 +68,8 @@ const submit = async () => {
                         <EntregaTurnoForm
                             :updating="true"
                             :form="form"
-                            :medicos="props.medicos"
-                            :unidades="props.unidades"
+                            :medicos="medicos"
+                            :unidades="unidades"
                             @submit="submit" />
                     </div>
                 </div>

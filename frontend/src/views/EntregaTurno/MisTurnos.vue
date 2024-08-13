@@ -18,7 +18,6 @@ import {
 import Swal from "sweetalert2";
 import { Head, useHead } from "@vueuse/head";
 import { useAuthStore } from "@/stores/auth";
-import NProgress from "nprogress";
 
 import jszip from "jszip";
 import pdfmake from "pdfmake";
@@ -135,7 +134,6 @@ const options = ref({
 });
 
 const getMisTurnos = async () => {
-  NProgress.start();
   try {
     const response = await axios.get("/misTurnos");
 
@@ -151,7 +149,6 @@ const getMisTurnos = async () => {
       alertaError(error.value);
     }
   }
-  NProgress.done();
 };
 
 const detalle_turno = (id_turno) => {
@@ -247,7 +244,7 @@ onMounted(() => {
     </Banner>
     <br />
     <div class="py-2">
-      <div class="w-6/6 mx-auto sm:px-6 lg:px-8">
+      <div class="w-5/6 mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-2xl sm:rounded-lg">
           <div>
             <div class="p-6 bg-white border-gray-200 mt-6">

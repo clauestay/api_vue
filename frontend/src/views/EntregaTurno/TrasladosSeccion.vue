@@ -6,7 +6,6 @@ import InputError from '@/components/InputError.vue';
 import PrimaryButton from '@/components/PrimaryButton.vue';
 import IconBuscar from '@/components/icons/IconBuscar.vue';
 import IconEliminar from '@/components/icons/IconEliminar.vue';
-import NProgress from 'nprogress';
 import { validate, clean, format } from 'rut.js';
 import { ref, onMounted, defineProps, defineEmits } from 'vue';
 
@@ -70,7 +69,6 @@ const quitarLineaTraslado = (id) => {
 
 // Función para buscar información del paciente trasladado por RUT
 const buscarTrasladoPacienteRut = async (rut, index) => {
-    NProgress.start();
     if (validate(rut)) {
         rut = props.limpiarRut(rut);
         try {
@@ -88,7 +86,6 @@ const buscarTrasladoPacienteRut = async (rut, index) => {
     } else {
         props.form.traslados[index].error.run = "El run no es valido.";
     }
-    NProgress.done();
 };
 
 if (props.updating) {
@@ -104,17 +101,19 @@ if (props.updating) {
 
 <template>
     <div class="bg-green-200 mt-8 p-4 overflow-hidden shadow-xl sm:rounded-lg">
-        <Label class="text-xl flex justify-center underline mb-4" for="tituloTraslados" value="Pacientes trasladados" />
-        <div class="flex justify-end">
-            <div class="float-right">
+        <div class="flex justify-center items-center">
+            <div class="flex-1 text-center">
+                <Label class="text-xl flex justify-center underline mb-4" for="tituloTraslados" value="Pacientes trasladados" />
+            </div>
+            <div>
                 <PrimaryButton class="bg-green-600 hover:bg-green-700" title="agregar paciente trasladado en turno."
                     @click.prevent="agregarLineaTraslado">
                     +
                 </PrimaryButton>
             </div>
         </div>
-        <div class="flex flex-col pt-2">
-            <div class="grid grid-cols-6 gap-4 p-2">
+        <div v-if="props.form.traslados.length > 0" class="flex flex-col pt-2">
+            <div class="grid grid-cols-6 gap-4 p-2" style="grid-template-columns: 2fr 2fr 2fr 2fr 2fr 1fr;">
                 <div><Label class="font-black" for="run" value="Run" /></div>
                 <div><Label class="font-black" for="nombre" value="Nombre" /></div>
                 <div><Label class="font-black" for="diagnostico" value="Diagnóstico" /></div>
@@ -126,7 +125,7 @@ if (props.updating) {
         <div class="flex flex-col">
             <div v-for="(traslado, index) in props.form.traslados" :key="traslado.id">
                 <hr class="my-2 border-t border-gray-600">
-                <div class="grid grid-cols-6 gap-4 p-2">
+                <div class="grid grid-cols-6 gap-4 p-2" style="grid-template-columns: 2fr 2fr 2fr 2fr 2fr 1fr;">
                     <div class="flex flex-col md:flex-row">
                         <div v-if="!traslado.editable" class="flex flex-col">
                             {{ traslado.run }}
@@ -203,7 +202,7 @@ if (props.updating) {
                             </div>
                         </div>
                     </div>
-                    <div class="flex flex-col">
+                    <div class="flex justify-end">
                         <IconEliminar @click.prevent="quitarLineaTraslado(traslado.id)" />
                     </div>
                 </div>

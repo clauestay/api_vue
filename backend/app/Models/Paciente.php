@@ -28,7 +28,9 @@ class Paciente extends Model
 
     public static function datosPacienteRut($run)
     {
-        return self::where('rut_paciente', $run)->first();
+        return self::select('id_ambulatorio', 'nombre_paciente', 'apepat_paciente', 'apemat_paciente')
+               ->where('rut_paciente', $run)
+               ->first();
     }
 
     public static function traerDiagnostico($idAmbulatorio)

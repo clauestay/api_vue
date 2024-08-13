@@ -5,7 +5,6 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Banner from "@/components/Banner.vue";
 import FooterInc from "@/components/FooterInc.vue";
 import { useAuthStore } from "@/stores/auth";
-import NProgress from "nprogress";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
 import { reactive } from "vue";
@@ -71,7 +70,6 @@ const cols =
   ]) || [];
 
 const getListadoTurnos = async () => {
-  NProgress.start();
   loading.value = true;
   try {
     const response = await axios.get("http://localhost:80/api/listadoTurnos", {
@@ -85,7 +83,6 @@ const getListadoTurnos = async () => {
   }
 
   loading.value = false;
-  NProgress.done();
 };
 
 const changeServer = (data) => {
@@ -102,7 +99,7 @@ const changeServer = (data) => {
 const router = useRouter();
 
 const detalle_turno = (id_turno) => {
-  router.push({ name: "detalle-turno", params: { id: id_turno } });
+  router.push({ name: "Detalle-turno", params: { id: id_turno } });
 };
 
 onMounted(() => {
@@ -120,7 +117,7 @@ onMounted(() => {
     </Banner>
     <br />
     <div class="py-2">
-      <div class="w-6/6 mx-auto sm:px-6 lg:px-8">
+      <div class="w-5/6 mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-2xl sm:rounded-lg">
           <div>
             <div class="p-6 bg-white border-gray-200 mt-6">

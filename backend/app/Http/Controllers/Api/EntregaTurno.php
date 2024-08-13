@@ -3,35 +3,59 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Inertia\Response;
-use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\CambioTurno\CrearCambioTurnoRequest;
-use App\Http\Requests\CambioTurno\BuscarTurnoRequest;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Session;
 
 // MODELOS
 use App\Models\User;
-use App\Models\RpEquipoStaff;
 use App\Models\Paciente;
 use App\Models\RpCambioTurno;
-use App\Models\EnfTraslados;
-use App\Models\AdmIngresos;
 use App\Models\RpDetCambioTurno;
 use App\Models\RpDetCtTraslados;
 use App\Models\RpDetCtFallecidos;
 use App\Models\RpDetCtCirugias;
-use App\Models\GenUnidad;
+use App\Models\RpEquipoStaff;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon as carbon;
-use Illuminate\Support\Facades\DB;
-use Debugbar;
+
+use App\Http\Requests\CrearCambioTurnoRequest;
 
 class EntregaTurno extends Controller
 {
+    public function medicoEntregaTurno($cod_prof): JsonResponse
+    {
+        $medico_entrega = RpEquipoStaff::getMedicosByCodProf($cod_prof);
+
+        return response()->json([
+            'medico_entrega' => $medico_entrega
+        ]);
+    }
+
+    public function medicosEntregaTurno(Request $request): JsonResponse
+    {
+        $medicos = RpEquipoStaff::getMedicos();
+
+        return response()->json([
+            'medicos' => $medicos
+        ]);
+    }
+
+    public function obtenerInfoPaciente($rut): JsonResponse
+    {
+        $paciente = Paciente::datosPacienteRut($rut);
+        $datos = null;
+
+        if ($paciente) {
+            $diagnostico = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+            $datos = [
+                "nombre_completo" => $paciente->nombre_completo,
+                "diagnostico" => $diagnostico
+            ];
+        }
+
+        return response()->json(['info_paciente' => $datos]);
+    }
+
     public function listadoTurnos(Request $request): JsonResponse
     {
         $search = $request->input('search', null);
@@ -160,4 +184,180 @@ class EntregaTurno extends Controller
             "traslados" => $traslados
         ]);
     }
+
+    public function obtenerFallecidos($id): JsonResponse
+    {
+        if (!$id) {
+            return response()->json([
+                "error" => "Hubo un error con el identificador del turno."
+            ], 400);
+        }
+
+        $fallecidos = RpDetCtFallecidos::getFallecidosTurno($id);
+        if (!$fallecidos) {
+            return response()->json([
+                "error" => "No se pudo encontrar los pacientes fallecidos."
+            ], 400);
+        }
+
+        $fallecidos->map(function ($fallecido) {
+            $paciente = Paciente::datosPacienteRut($fallecido['rut']);
+            $fallecido['nombre_completo'] = $paciente->nombre_completo;
+            $fallecido['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+            return $fallecido;
+        });
+
+        return response()->json([
+            "fallecidos" => $fallecidos
+        ]);
+    }
+
+    public function obtenerCirugias($id): JsonResponse
+    {
+        if (!$id) {
+            return response()->json([
+                "error" => "Hubo un error con el identificador del turno."
+            ], 400);
+        }
+
+        $cirugias = RpDetCtCirugias::getCirugiasTurno($id);
+        if (!$cirugias) {
+            return response()->json([
+                "error" => "No se pudo encontrar los pacientes cirugias."
+            ], 400);
+        }
+
+        $cirugias = RpDetCtCirugias::getCirugiasTurno($id);
+        $cirugias->map(function ($cirugia) {
+            $paciente = Paciente::datosPacienteRut($cirugia['rut']);
+            $cirugia['nombre_completo'] = $paciente->nombre_completo;
+            $cirugia['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+            return $cirugia;
+        });
+
+        return response()->json([
+            "cirugias" => $cirugias
+        ]);
+    }
+
+    public function generarPdfTurno($id) //: BinaryFileResponse
+    {
+        $turno = RpCambioTurno::getTurno($id);
+
+        $entregados = RpDetCambioTurno::getEntregadosTurno($id);
+        $entregados->map(function ($entregado) {
+            $paciente = Paciente::datosPacienteRut($entregado->rut);
+            $entregado->nombre_completo = $paciente->nombre_completo;
+            $entregado->diagnostico = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+            return $entregado;
+        });
+
+        $traslados = RpDetCtTraslados::getTrasladosTurno($id);
+        $traslados = $traslados->map(function ($traslado) {
+            $paciente = Paciente::datosPacienteRut($traslado['rut']);
+            $traslado['nombre_completo'] = $paciente->nombre_completo;
+            $traslado['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+            $detalle = $traslado['detalle'];
+            $detalle['cod_unidad_origen'] = RpDetCtTraslados::getDescripcionUnidadPorCodigo($detalle['cod_unidad_origen']);
+            $detalle['cod_unidad_destino'] = RpDetCtTraslados::getDescripcionUnidadPorCodigo($detalle['cod_unidad_destino']);
+            $traslado['detalle'] = $detalle;
+            return $traslado;
+        });
+
+        $fallecidos = RpDetCtFallecidos::getFallecidosTurno($id);
+        $fallecidos->map(function ($fallecido) {
+            $paciente = Paciente::datosPacienteRut($fallecido['rut']);
+            $fallecido['nombre_completo'] = $paciente->nombre_completo;
+            $fallecido['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+            return $fallecido;
+        });
+
+        $cirugias = RpDetCtCirugias::getCirugiasTurno($id);
+        $cirugias->map(function ($cirugia) {
+            $paciente = Paciente::datosPacienteRut($cirugia['rut']);
+            $cirugia['nombre_completo'] = $paciente->nombre_completo;
+            $cirugia['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+            return $cirugia;
+        });
+
+        $pdf = Pdf::loadView('reportesPDF.entregaTurno', [
+            "turno" => $turno,
+            "entregados" => $entregados,
+            "traslados" => $traslados,
+            "fallecidos" => $fallecidos,
+            "cirugias" => $cirugias,
+        ]);
+        return $pdf->stream('entregaTurno.pdf');
+    }
+
+    public function guardarCambioTurno(CrearCambioTurnoRequest $request): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            // Guardar entrega turno.
+            $dataTurno = $request->only('fecha_entrada', 'fecha_salida', 'reemplazante', 'medico_entrega', 'medico_recibe', 'novedades', 'cirugias', 'fallecidos', 'traslados');
+
+            // Comprobar si el turno ya existe.
+            $existeTurno = RpCambioTurno::compruebaTurno($dataTurno["medico_entrega"], $dataTurno["fecha_entrada"], $dataTurno["fecha_salida"]);
+            if ($existeTurno) {
+                $llegada = Carbon::parse($existeTurno->fecha_llegada);
+                $salida = Carbon::parse($existeTurno->fecha_salida);
+                return response()->json([
+                    'message' => "Ya posee un turno registrado entre {$llegada->format('d/m/Y H:i')} y {$salida->format('d/m/Y H:i')}.",
+                    'parametro' => $existeTurno->id_cambio_turno,
+                    'update_suggestion' => true
+                ], 409); // 409 Conflict
+            }
+
+            // Guardar nuevo turno.
+            $guardarTurno = RpCambioTurno::guardarTurno($dataTurno);
+
+            // Guardar entregados.
+            $dataEntregados = $request->entregados;
+            if ($dataEntregados) {
+                foreach ($dataEntregados as $entregado) {
+                    RpDetCambioTurno::guardarEntregados($entregado, $guardarTurno->id_cambio_turno);
+                }
+            }
+
+            // Guardar traslados.
+            $dataTraslados = $request->traslados;
+            if ($dataTraslados) {
+                foreach ($dataTraslados as $traslado) {
+                    RpDetCtTraslados::guardarTraslados($traslado, $guardarTurno->id_cambio_turno);
+                }
+            }
+
+            // Guardar fallecidos.
+            $dataFallecidos = $request->fallecidos;
+            if ($dataFallecidos) {
+                foreach ($dataFallecidos as $fallecido) {
+                    RpDetCtFallecidos::guardarFallecidos($fallecido, $guardarTurno->id_cambio_turno);
+                }
+            }
+
+            // Guardar cirugías.
+            $dataCirugias = $request->cirugias;
+            if ($dataCirugias) {
+                foreach ($dataCirugias as $cirugia) {
+                    RpDetCtCirugias::guardarCirugias($cirugia, $guardarTurno->id_cambio_turno);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Turno guardado con éxito.',
+                'turno_id' => $guardarTurno->id_cambio_turno
+            ], 201); // 201 Created
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'error' => 'Error al guardar el turno.',
+                'details' => $e->getMessage()
+            ], 500); // 500 Internal Server Error
+        }
+    }
+
 }

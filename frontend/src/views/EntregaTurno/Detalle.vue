@@ -15,56 +15,37 @@ import {
 import { onMounted } from 'vue';
 import { useAuthStore } from "@/stores/auth";
 import dayjs from 'dayjs';
+import ProgressSpinner from 'primevue/progressspinner';
 
 const authStore = useAuthStore();
-axios.defaults.headers.common["Authorization"] =
-  "Bearer " + authStore.authToken;
+axios.defaults.headers.common["Authorization"] = "Bearer " + authStore.authToken;
 
-useHead({ title: "Mis turnos" });
+useHead({ title: "Detalle turno" });
 
 const router = useRoute();
 const id_turno = router.params.id;
-
-// Define props
-const props = defineProps({
-    ruta: {
-        type: Object,
-        default: () => ({}),
-    },
-    entregados: {
-        type: Object,
-        default: () => ({}),
-    },
-    traslados: {
-        type: Object,
-        default: () => ({}),
-    },
-    fallecidos: {
-        type: Object,
-        default: () => ({}),
-    },
-    cirugias: {
-        type: Object,
-        default: () => ({}),
-    },
-});
 
 const goBack = () => {
     window.history.back();
 };
 
 const error = ref(null);
+const loading = ref(false);
 const turno = ref([]);
 const entregados = ref([]);
 const traslados = ref([]);
+const fallecidos = ref([]);
+const cirugias = ref([]);
 
 const obtenerTurno = async (id_turno) => {
+    loading.value = true;
     try {
         const response = await axios.get(`/obtenerTurno/${id_turno}`);
         turno.value = response.data.turno;
-        console.log(turno.value);
         await obtenerEntregados(id_turno);
         await obtenerTraslados(id_turno);
+        await obtenerFallecidos(id_turno);
+        await obtenerCirugias(id_turno);
     } catch (err) {
     console.log(err);
     if (error.response && err.response.data) {
@@ -75,13 +56,13 @@ const obtenerTurno = async (id_turno) => {
       alertaError(error.value);
     }
   }
+    loading.value = false;
 }
 
 const obtenerEntregados = async (id_turno) => {
     try {
         const response = await axios.get(`/obtenerEntregados/${id_turno}`);
         entregados.value = response.data.entregados;
-        console.log(entregados.value);
     } catch (err) {
     console.log(err);
     if (error.response && err.response.entregados) {
@@ -98,7 +79,6 @@ const obtenerTraslados = async (id_turno) => {
     try {
         const response = await axios.get(`/obtenerTraslados/${id_turno}`);
         traslados.value = response.data.traslados;
-        console.log(traslados.value);
     } catch (err) {
     console.log(err);
     if (error.response && err.response.traslados) {
@@ -109,6 +89,54 @@ const obtenerTraslados = async (id_turno) => {
       alertaError(error.value);
     }
   }
+}
+
+const obtenerFallecidos = async (id_turno) => {
+    try {
+        const response = await axios.get(`/obtenerFallecidos/${id_turno}`);
+        fallecidos.value = response.data.fallecidos;
+    } catch (err) {
+    console.log(err);
+    if (error.response && err.response.fallecidos) {
+      error.value = err.response.data.error;
+      alertaError(error.value);
+    } else {
+      error.value = "Error al obtener el listado de los pacientes fallecidos.";
+      alertaError(error.value);
+    }
+  }
+}
+
+const obtenerCirugias = async (id_turno) => {
+    try {
+        const response = await axios.get(`/obtenerCirugias/${id_turno}`);
+        cirugias.value = response.data.cirugias;
+    } catch (err) {
+    console.log(err);
+    if (error.response && err.response.cirugias) {
+      error.value = err.response.data.error;
+      alertaError(error.value);
+    } else {
+      error.value = "Error al obtener el listado de los pacientes cirugias.";
+      alertaError(error.value);
+    }
+  }
+}
+
+const generarPdf = async () => {
+    try {
+        const response = await axios.get(`/generarPdfTurno/${id_turno}`, {
+            responseType: "blob",
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.target = "_blank";
+        link.click();
+    } catch (err) {
+        console.log(err);
+        console.log("Error al generar el pdf ");
+    }
 }
 
 const sinInfo = "Sin información";
@@ -124,17 +152,20 @@ onMounted(() => {
         </Banner>
         <br>
         <div class="py-2">
-            <div class="w-6/6 mx-auto sm:px-6 lg:px-8">
+            <div class="w-5/6 mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-2xl sm:rounded-lg">
                     <div>
                         <div class="p-6 bg-white border-gray-200 mt-6">
                             <Button @click="goBack()"
-                                class="text-white bg-naranjo-light hover:bg-naranjo-dark focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">
-                            Volver
-                        </Button>
+                                label="Volver"
+                                severity="warn">
+                            </Button>
                         </div>
                         <div class="text-center pb-2">
                             <Label class="text-2xl font-semibold uppercase text-gris-dark">Detalle entrega turno</Label>
+                        </div>
+                        <div v-if="loading" class="flex justify-center items-center">
+                            <ProgressSpinner />
                         </div>
                         <div class="p-6 bg-white">
                             <div class="flex flex-col">
@@ -198,10 +229,7 @@ onMounted(() => {
                                         </div>
                                     </div>
                                     <div class="w-full flex justify-center items-center">
-                                        <a class="text-white bg-morado-base hover:bg-morado-dark focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
-                                            :href="`/entregaTurno/generarPdfTurno/${turno.id_cambio_turno}`" target="__blank">
-                                            Imprimir
-                                        </a>
+                                        <Button label="Generar PDF" @click="generarPdf()" severity="help"></Button>
                                     </div>
                                 </div>
                             </div>
@@ -380,7 +408,7 @@ onMounted(() => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="fallecido in props.fallecidos" :key="fallecido.rut">
+                                                <tr v-for="fallecido in fallecidos" :key="fallecido.rut">
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">
                                                         <div class="px-2">
                                                             <Label class="text-gris-dark">{{ fallecido.rut }}-{{ fallecido.digito }}</Label>
@@ -404,7 +432,7 @@ onMounted(() => {
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <div v-if="props.fallecidos.length === 0" class="w-full">
+                                        <div v-if="fallecidos.length === 0" class="w-full">
                                             <div class="px-2 border-y">
                                                 <div class="px-4 flex justify-center items-center text-center">
                                                     <Label class="font-bold text-gris-dark">No se registraron Pacientes fallecidos.</Label>
@@ -442,7 +470,7 @@ onMounted(() => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="cirugia in props.cirugias" :key="cirugia.rut">
+                                                <tr v-for="cirugia in cirugias" :key="cirugia.rut">
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">
                                                         <div class="px-2">
                                                             <Label class="text-gris-dark">{{ cirugia.rut }}-{{ cirugia.digito }}</Label>
@@ -475,7 +503,7 @@ onMounted(() => {
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <div v-if="props.cirugias.length === 0" class="w-full">
+                                        <div v-if="cirugias.length === 0" class="w-full">
                                             <div class="px-2 border-y">
                                                 <div class="px-4 flex justify-center items-center text-center">
                                                     <Label class="font-bold text-gris-dark">No se registraron Pacientes con cirugias.</Label>
@@ -503,18 +531,18 @@ onMounted(() => {
                                             </div>
                                             <div class="md:w-1/2 px-3 mb-6 md:mb-0">
                                                 <Label class="font-bold text-gris-dark">Cantidad cirugías realizadas por residencia</Label>
-                                                <Label class="text-gris-dark">{{ props.cirugias.length }}</Label>
+                                                <Label class="text-gris-dark">{{ cirugias.length }}</Label>
                                             </div>
                                             <div class="md:w-1/2 px-3">
                                                 <div>
                                                     <Label class="font-bold text-gris-dark">Cantidad pacientes fallecidos</Label>
-                                                    <Label class="text-gris-dark">{{ props.fallecidos.length }}</Label>
+                                                    <Label class="text-gris-dark">{{ fallecidos.length }}</Label>
                                                 </div>
                                             </div>
                                             <div class="md:w-1/2 px-3">
                                                 <div>
                                                     <Label class="font-bold text-gris-dark">Cantidad pacientes trasladados</Label>
-                                                    <Label class="text-gris-dark">{{ props.traslados.length }}</Label>
+                                                    <Label class="text-gris-dark">{{ traslados.length }}</Label>
                                                 </div>
                                             </div>
                                         </div>

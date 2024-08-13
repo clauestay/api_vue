@@ -13,20 +13,26 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 // logout route
-Route::post('/logout', [AuthController::class, 'logout']);
 
-// emxaple / api route
-Route::get('/example', function () {
-    return response()->json(['message' => 'Hello World!']);
-});
-
-//grupo de listado de rutas con middleware auth:sanctum
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    /**
+     * Lstado rutas cambio turno.
+     */
+    Route::get('/medicoEntregaTurno/{cod_prof}', [EntregaTurno::class, 'medicoEntregaTurno']);
+    Route::get('/medicosEntregaTurno', [EntregaTurno::class, 'medicosEntregaTurno']);
+    Route::get('/obtenerInfoPaciente/{rut}', [EntregaTurno::class, 'obtenerInfoPaciente']);
+
     Route::get('/listadoTurnos', [EntregaTurno::class, 'listadoTurnos']);
     Route::get('/misTurnos', [EntregaTurno::class, 'misTurnos']);
     Route::get('/obtenerTurno/{id}', [EntregaTurno::class, 'obtenerTurno']);
     Route::get('/obtenerEntregados/{id}', [EntregaTurno::class, 'obtenerEntregados']);
     Route::get('/obtenerTraslados/{id}', [EntregaTurno::class, 'obtenerTraslados']);
+    Route::get('/obtenerFallecidos/{id}', [EntregaTurno::class, 'obtenerFallecidos']);
+    Route::get('/obtenerCirugias/{id}', [EntregaTurno::class, 'obtenerCirugias']);
+    Route::get('/generarPdfTurno/{id}', [EntregaTurno::class, 'generarPdfTurno']);
+    Route::post('/guardarCambioTurno', [EntregaTurno::class, 'guardarCambioTurno']);
 });
 
 
