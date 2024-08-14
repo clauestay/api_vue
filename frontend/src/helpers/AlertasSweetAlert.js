@@ -1,7 +1,5 @@
 import Swal from 'sweetalert2';
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
+import router from '@/router/index.js';
 
 // Declarar todos los tipos de SweetAlert a utilizar
 const alertaExito = (mensaje) => {
@@ -58,7 +56,7 @@ const alertaPregunta = (ruta, titulo, form) => {
         cancelButtonColor: 'red'
     }).then((result) => {
         if (result.isConfirmed) {
-            router.push({ name: ruta, params: form });
+            router.push({ name: ruta, params: { id: form.parametro } });
         }
     });
 };

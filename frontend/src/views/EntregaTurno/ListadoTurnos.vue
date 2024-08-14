@@ -1,21 +1,23 @@
 <script setup>
-import { ref, watch, onMounted, h } from "vue";
+import { ref, onMounted, computed} from "vue";
 import { useRouter } from "vue-router";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Banner from "@/components/Banner.vue";
 import FooterInc from "@/components/FooterInc.vue";
-import { useAuthStore } from "@/stores/auth";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
 import { reactive } from "vue";
+import { useEntregaTurnoStore } from "@/stores/entregaTurno";
 
-const authStore = useAuthStore();
-axios.defaults.headers.common["Authorization"] =
-  "Bearer " + authStore.authToken;
+const entregaTurnoStore = useEntregaTurnoStore();
 
-const turnos = ref([]);
-const loading = ref(true);
-const total_rows = ref(0);
+onMounted(() => {
+  entregaTurnoStore.getListadoTurnos();
+});
+
+const turnos = computed(() => entregaTurnoStore.turnos);
+const loading = computed(() => entregaTurnoStore.loading);
+const total_rows = computed(() => entregaTurnoStore.total_rows);
 
 const params = reactive({
   current_page: 1,
@@ -69,22 +71,6 @@ const cols =
     { field: "actions", title: "Acciones", filter: false, sort: false },
   ]) || [];
 
-const getListadoTurnos = async () => {
-  loading.value = true;
-  try {
-    const response = await axios.get("http://localhost:80/api/listadoTurnos", {
-      params: { ...params }
-    });
-
-    turnos.value = response.data.turnos.data;
-    total_rows.value = response.data.turnos.total;
-  } catch (error) {
-    console.log(error);
-  }
-
-  loading.value = false;
-};
-
 const changeServer = (data) => {
   params.current_page = data.current_page;
   params.pagesize = data.pagesize;
@@ -92,19 +78,15 @@ const changeServer = (data) => {
   params.sort_direction = data.sort_direction;
   params.search = data.search;
 
-  getListadoTurnos();
+  entregaTurnoStore.getListadoTurnos();
 };
 
-// const search = ref(props.filters.search);
 const router = useRouter();
 
 const detalle_turno = (id_turno) => {
   router.push({ name: "Detalle-turno", params: { id: id_turno } });
 };
 
-onMounted(() => {
-  getListadoTurnos();
-});
 </script>
 
 <template>

@@ -33,6 +33,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/obtenerCirugias/{id}', [EntregaTurno::class, 'obtenerCirugias']);
     Route::get('/generarPdfTurno/{id}', [EntregaTurno::class, 'generarPdfTurno']);
     Route::post('/guardarCambioTurno', [EntregaTurno::class, 'guardarCambioTurno']);
+    Route::get('/comprobarTurnoExistente', [EntregaTurno::class, 'comprobarTurnoExistente']);
 });
-
-

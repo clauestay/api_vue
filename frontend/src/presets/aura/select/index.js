@@ -105,7 +105,7 @@ export default {
             'rounded-r-md'
         ]
     },
-    overlay:  ({ context }) => ({
+    overlay:  ({ context, props }) => ({
         class: [
             // Colors
             'bg-surface-0 dark:bg-surface-900',
@@ -132,7 +132,7 @@ export default {
     list: {
         class: 'p-1 list-none m-0'
     },
-    option: ({ context }) => ({
+    option: ({ context, props }) => ({
         class: [
             'relative',
             'flex items-center',

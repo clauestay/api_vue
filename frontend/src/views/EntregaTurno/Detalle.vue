@@ -65,7 +65,7 @@ const obtenerEntregados = async (id_turno) => {
         entregados.value = response.data.entregados;
     } catch (err) {
     console.log(err);
-    if (error.response && err.response.entregados) {
+    if (err.response && err.response.entregados) {
       error.value = err.response.data.error;
       alertaError(error.value);
     } else {

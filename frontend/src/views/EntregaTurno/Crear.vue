@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Banner from '@/components/Banner.vue';
@@ -8,102 +8,82 @@ import FooterInc from '@/components/FooterInc.vue';
 import { alertaExito, alertaError, alertaErrores, alertaPregunta } from '@/helpers/AlertasSweetAlert';
 import { Head, useHead } from '@vueuse/head';
 import { useAuthStore } from "@/stores/auth";
+import { useEntregaTurnoStore } from '@/stores/entregaTurno';
 
 const authStore = useAuthStore();
-console.log(authStore.authUser);
-axios.defaults.headers.common["Authorization"] =
-  "Bearer " + authStore.authToken;
+const cod_prof = authStore.authUser.codigo_profesional?.cod_prof;
+
+const entregaTurnoStore = useEntregaTurnoStore();
+
+onMounted(() => {
+    entregaTurnoStore.getMedicoEntrega(cod_prof);
+    entregaTurnoStore.getMedicos();
+})
 
 useHead({
     title: 'Crear turno',
 });
 
-const cod_prof = authStore.authUser.codigo_profesional?.cod_prof;
-
-let medicos = ref([]);
-let medico_entrega = ref({});
-let unidades = ref({});
-
-// Inicializar el formulario
-const form = ref({
-    entregados: [],
-    traslados: [],
-    fallecidos: [],
-    cirugias: [],
-    novedades: '',
-    reemplazante: false,
-    medico_entrega: '',
-    medico_recibe: '',
-    fecha_entrada: '',
-    fecha_salida: '',
-});
-
-// Router para la navegación
 const router = useRouter();
 
-const getMedicoEntrega = async () => {
-    try {
-        const response = await axios.get(`/medicoEntregaTurno/${cod_prof}`);
-        // console.log(response);
-        form.value.medico_entrega = response.data.medico_entrega;
-        console.log(form.value.medico_entrega);
-    } catch (error) {
-        console.error(error);
-        alertaErrores(error);
-    }
-};
+const errors = computed(() => entregaTurnoStore.errors);
+const form = computed(() => entregaTurnoStore.form);
+const medicos = computed(() => entregaTurnoStore.medicos);
+const unidades = computed(() => entregaTurnoStore.unidades);
 
-const getMedicos = async () => {
-    try {
-        const response = await axios.get('/medicosEntregaTurno');
-        medicos.value = response.data.medicos;
-    } catch (error) {
-        console.error(error);
-        alertaErrores(error);
-    }
-};
+const submit = () => {
+    entregaTurnoStore.guardarCambioTurno(router);
+}
 
 // Función para manejar el submit del formulario
-const submit = async () => {
-    try {
-        const response = await axios.post('/guardarCambioTurno', form.value, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        console.log(response);
+// const submit = async () => {
+//     try {
+//         const response = await axios.post('/guardarCambioTurno', form.value, {
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             }
+//         });
 
-        const responseData = response.data;
-        if (responseData.success) {
-            alertaExito(responseData.success);
-            form.value = {
-                entregados: [],
-                traslados: [],
-                fallecidos: [],
-                cirugias: [],
-                novedades: '',
-                reemplazante: false,
-                medico_entrega: medico_entrega ?? '',
-                medico_recibe: '',
-                fecha_entrada: '',
-                fecha_salida: '',
-            };
-            router.push('/entregaTurno/misTurnos');
-        } else if (responseData.error) {
-            alertaError(responseData.error);
-        } else if (responseData.data) {
-            alertaPregunta('/entregaTurno/editarTurno', responseData.data, responseData.parametro);
-        }
-    } catch (error) {
-        console.error(error);
-        alertaErrores(error);
-    }
-};
+//         const responseData = response.data;
 
-onMounted(() => {
-    getMedicoEntrega();
-    getMedicos();
-})
+//         if (responseData.exito) {
+//             alertaExito(responseData.exito);
+//             form.value = {
+//                 entregados: [],
+//                 traslados: [],
+//                 fallecidos: [],
+//                 cirugias: [],
+//                 novedades: '',
+//                 reemplazante: false,
+//                 medico_entrega: medico_entrega ?? '',
+//                 medico_recibe: '',
+//                 fecha_entrada: '',
+//                 fecha_salida: '',
+//             };
+//             router.push('/misTurnos');
+//         } else if (responseData.error) {
+//             alertaError(responseData.error);
+//         }
+//     } catch (err) {
+//         console.error(err);
+//         const responseData = err.response?.data;
+
+//         if (responseData) {
+//             if (err.response.status === 409) {
+//                 alertaError(responseData.info);
+//             } else if (responseData.errors) {
+//                 errors.value = responseData.errors;
+//                 alertaErrores(errors.value);
+//             } else if (responseData.error) {
+//                 alertaError(responseData.error);
+//             } else {
+//                 alertaError("Se ha producido un error desconocido.");
+//             }
+//         } else {
+//             alertaError("Se ha producido un error en la red o un error inesperado.");
+//         }
+//     }
+// };
 </script>
 
 <template>
@@ -125,6 +105,7 @@ onMounted(() => {
                             :form="form"
                             :medicos="medicos"
                             :unidades="unidades"
+                            :errors="errors"
                             @submit="submit" />
                     </div>
                 </div>

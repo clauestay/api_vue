@@ -17,6 +17,7 @@ use App\Models\RpDetCtCirugias;
 use App\Models\RpEquipoStaff;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon as carbon;
+use Illuminate\Support\Facades\DB;
 
 use App\Http\Requests\CrearCambioTurnoRequest;
 
@@ -304,9 +305,8 @@ class EntregaTurno extends Controller
                 $llegada = Carbon::parse($existeTurno->fecha_llegada);
                 $salida = Carbon::parse($existeTurno->fecha_salida);
                 return response()->json([
-                    'message' => "Ya posee un turno registrado entre {$llegada->format('d/m/Y H:i')} y {$salida->format('d/m/Y H:i')}.",
-                    'parametro' => $existeTurno->id_cambio_turno,
-                    'update_suggestion' => true
+                    'info' => "Ya posee un turno registrado entre {$llegada->format('d/m/Y H:i')} y {$salida->format('d/m/Y H:i')}.",
+                    'id' => $existeTurno->id_cambio_turno,
                 ], 409); // 409 Conflict
             }
 
@@ -348,16 +348,36 @@ class EntregaTurno extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => 'Turno guardado con éxito.',
-                'turno_id' => $guardarTurno->id_cambio_turno
+                'exito' => 'Turno guardado con éxito.',
+                // 'turno_id' => $guardarTurno->id_cambio_turno
             ], 201); // 201 Created
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json([
                 'error' => 'Error al guardar el turno.',
                 'details' => $e->getMessage()
-            ], 500); // 500 Internal Server Error
+            ], 400); // 500 Internal Server Error
         }
+    }
+
+    public function comprobarTurnoExistente(Request $request): JsonResponse
+    {
+        $medico_entrega = $request->medico_entrega;
+        $fecha_entrada = $request->llegada;
+        $fecha_salida = $request->salida;
+
+        $response = null;
+        $existeTurno = RpCambioTurno::compruebaTurno($medico_entrega, $fecha_entrada, $fecha_salida);
+        if ($existeTurno) {
+            $llegada = Carbon::parse($existeTurno->fecha_llegada);
+            $salida = Carbon::parse($existeTurno->fecha_salida);
+            $response = [
+                'msg' => "Ya posee un turno regitrado entre {$llegada->format('d/m/Y H:i')} y {$salida->format('d/m/Y H:i')}.",
+                'parametro' => $existeTurno->id_cambio_turno
+            ];
+        }
+
+        return response()->json(['existeTurno' => $response]);
     }
 
 }

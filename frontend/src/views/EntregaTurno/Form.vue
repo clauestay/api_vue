@@ -1,7 +1,6 @@
 <script setup>
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
 import FormSection from "@/components/FormSection.vue";
 import EntregaSeccion from "@/views/EntregaTurno/EntregaSeccion.vue";
 import FallecidosSeccion from "@/views/EntregaTurno/FallecidosSeccion.vue";
@@ -11,7 +10,6 @@ import Label from "@/components/InputLabel.vue";
 import Input from "@/components/TextInput.vue";
 import TextArea from "@/components/TextArea.vue";
 import InputError from "@/components/InputError.vue";
-import Multiselect from "vue-multiselect";
 import PrimaryButton from "@/components/PrimaryButton.vue";
 import { validate, clean, format } from "rut.js";
 import { minDate, maxDate } from "@/helpers/AyudaFechas.js";
@@ -36,6 +34,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  errors: {
+    type: Object,
+    required: false,
+  },
   updating: {
     type: Boolean,
     required: false,
@@ -47,8 +49,8 @@ const props = defineProps({
 const emit = defineEmits(["submit"]);
 
 // Refs para el formulario y errores
-const form = ref({ ...props.form });
-const errors = ref({});
+const form = ref(props.form);
+// const errors = ref({});
 
 // Router para la navegación
 const router = useRouter();
@@ -115,15 +117,15 @@ const validarTurnoExistente = (llegada, salida, medico_entrega) => {
   };
 
   axios
-    .get("/comprobarTurnoExistente/", { params: data })
+    .get("/comprobarTurnoExistente", { params: data })
     .then((resp) => {
       let response = resp.data.existeTurno;
       console.log({ data });
-      if (data != null) {
+      if (response != null) {
         alertaPregunta(
-          "entregaTurno.editarTurno",
+          "Editar",
           response.msg,
-          response.parametro
+          {  parametro: response.parametro }
         );
       }
     })
@@ -173,7 +175,6 @@ if (!props.updating) {
           : "Ingresar Entrega de turno"
       }}
     </template>
-
     <template #form>
       <div
         class="bg-morado-light xl:mx-60 mt-8 p-4 overflow-hidden shadow-xl sm:rounded-lg"
@@ -191,7 +192,7 @@ if (!props.updating) {
                 <Input
                   v-model="form.fecha_entrada"
                   placeholder=""
-                  :class="{ 'border-red-400': errors.fecha_entrada }"
+                  :class="{ 'border-red-400': props.errors?.fecha_entrada?.[0] }"
                   :aria-label="form.fecha_entrada"
                   type="datetime-local"
                   :min="minDate"
@@ -200,7 +201,7 @@ if (!props.updating) {
                   autofocus
                 />
               </div>
-              <InputError class="mt-2" :message="errors.fecha_entrada" />
+              <InputError class="mt-2" :message="props.errors?.fecha_entrada?.[0]" />
             </div>
             <div class="md:w-1/2 px-3">
               <label for="medico_entrega">Salida</label>
@@ -208,7 +209,7 @@ if (!props.updating) {
                 <Input
                   v-model="form.fecha_salida"
                   placeholder=""
-                  :class="{ 'border-red-400': errors.fecha_salida }"
+                  :class="{ 'border-red-400': props.errors?.fecha_salida?.[0] }"
                   :aria-label="form.fecha_salida"
                   type="datetime-local"
                   :min="minDate"
@@ -217,7 +218,7 @@ if (!props.updating) {
                   autofocus
                 />
               </div>
-              <InputError class="mt-2" :message="errors.fecha_salida" />
+              <InputError class="mt-2" :message="props.errors?.fecha_salida?.[0]" />
             </div>
           </div>
           <div class="mx-10 md:flex mb-6">
@@ -225,7 +226,7 @@ if (!props.updating) {
               <label for="medico_entrega">Médico entrega</label>
               <Select
                 :disabled="!updating"
-                v-model="props.form.medico_entrega"
+                v-model="form.medico_entrega"
                 :options="props.medicos"
                 filter
                 showClear
@@ -248,10 +249,10 @@ if (!props.updating) {
                   </div>
                 </template>
               </Select>
+              <InputError class="mt-2" :message="props.errors?.medico_entrega?.[0]" />
             </div>
             <div class="md:w-1/2 px-3">
               <label for="medico_recibe">Médico recibe</label>
-              <!-- <Multiselect v-model="form.medico_recibe" :options="props.medicos" id="id" placeholder="Buscar Médico recibe" :multiple="false" label="name" deselectLabel="presione para quitar." selectLabel="presione para seleccionar." track-by="id" :class="{ 'border-red-400': errors['medico_recibe'] }" :open-direction="'top'" /> -->
               <Select
                 v-model="form.medico_recibe"
                 :options="props.medicos"
@@ -275,7 +276,7 @@ if (!props.updating) {
                   </div>
                 </template>
               </Select>
-              <InputError class="mt-2" :message="errors.medico_recibe" />
+              <InputError class="mt-2" :message="props.errors?.medico_recibe?.[0]" />
             </div>
           </div>
         </div>
@@ -318,13 +319,13 @@ if (!props.updating) {
                 <Label for="novedades" value="Ingrese Novedades del turno:" />
                 <TextArea
                   v-model="form.novedades"
-                  :class="{ 'border-red-400': errors['novedades'] }"
+                  :class="{ 'border-red-400': props.errors?.novedades?.[0] }"
                   placeholder="Ingrese Novedades del turno"
                   type="text"
                   class="mt-1 block w-full"
                   autofocus
                 />
-                <InputError class="mt-2" :message="errors.novedades" />
+                <InputError class="mt-2" :message="props.errors?.novedades?.[0]" />
               </div>
             </div>
           </div>

@@ -1,24 +1,15 @@
 <script setup>
-import { ref, reactive, watch, onMounted, h } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import debounce from "lodash/debounce";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Banner from "@/components/Banner.vue";
 import FooterInc from "@/components/FooterInc.vue";
-import Pagination from "@/components/Pagination.vue";
 import IconIr from "@/components/icons/IconIr.vue";
 import IconEdit from "@/components/icons/IconEdit.vue";
 import IconEliminar from "@/components/icons/IconEliminar.vue";
 import Label from "@/components/InputLabel.vue";
-import {
-  alertaExito,
-  alertaError,
-  alertaErrores,
-} from "@/helpers/AlertasSweetAlert";
-import Swal from "sweetalert2";
 import { Head, useHead } from "@vueuse/head";
-import { useAuthStore } from "@/stores/auth";
-
+import { useEntregaTurnoStore } from "@/stores/entregaTurno";
 import jszip from "jszip";
 import pdfmake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -33,17 +24,18 @@ DataTable.use(DataTablCore);
 DataTablCore.Buttons.jszip(jszip);
 DataTablCore.Buttons.pdfMake(pdfmake);
 
-const authStore = useAuthStore();
-axios.defaults.headers.common["Authorization"] =
-  "Bearer " + authStore.authToken;
+const entregaTurnoStore = useEntregaTurnoStore();
+
+onMounted(() => {
+  entregaTurnoStore.getMisTurnos();
+});
+
+const turnos = computed(() => entregaTurnoStore.turnos);
 
 useHead({ title: "Mis turnos" });
 
 const router = useRouter();
 
-const turnos = ref([]);
-
-const error = ref(null);
 const cols =
   ref([
     {
@@ -133,60 +125,12 @@ const options = ref({
   ],
 });
 
-const getMisTurnos = async () => {
-  try {
-    const response = await axios.get("/misTurnos");
-
-    console.log(response.data);
-    turnos.value = response.data.turnos;
-  } catch (err) {
-    console.log(err);
-    if (error.response && err.response.data) {
-      error.value = err.response.data.error;
-      alertaError(error.value);
-    } else {
-      error.value = "Error al obtener el listado de los turnos.";
-      alertaError(error.value);
-    }
-  }
-};
-
 const detalle_turno = (id_turno) => {
   router.push({ name: "Detalle-turno", params: { id: id_turno } });
 };
 
 const editar_turno = (id_turno) => {
   router.push({ name: "Editar", params: { id: id_turno } });
-};
-
-const borrar_turno = (id_turno) => {
-  Swal.fire({
-    title: "¿Desea eliminar el turno?",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Confirmar",
-    confirmButtonColor: "green",
-    denyButtonText: `Cancelar`,
-    cancelButtonColor: "red",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        const response = await axios.delete(
-          "entregaTurno.borrarTurno",
-          id_turno
-        );
-        let data = response.data;
-        if (data.success) {
-          alertaExito(data.success);
-        } else if (data.error) {
-          alertaError(data.error);
-        }
-      } catch (error) {
-        console.error(error);
-        alertaErrores(error);
-      }
-    }
-  });
 };
 
 const permitirEditarTurno = (fecha) => {
@@ -209,10 +153,6 @@ const permitirEditarTurno = (fecha) => {
 
   return diferenciaHoras <= 48;
 };
-
-onMounted(() => {
-  getMisTurnos();
-});
 </script>
 
 <style>
@@ -285,7 +225,7 @@ onMounted(() => {
                         <div
                           v-if="permitirEditarTurno(data.cellData.fecha)"
                           class="inline-flex gap-2"
-                          @click="borrar_turno(data.cellData.id_cambio_turno)"
+                          @click="entregaTurnoStore.borrar_turno(data.cellData.id_cambio_turno)"
                         >
                           <IconEliminar title="Eliminar" />
                         </div>

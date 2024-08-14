@@ -1,21 +1,125 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Banner from '@/components/Banner.vue';
 import EntregaTurnoForm from '@/views/EntregaTurno/Form.vue';
 import FooterInc from '@/components/FooterInc.vue';
 import { alertaExito, alertaError, alertaErrores } from '@/helpers/AlertasSweetAlert';
+import { Head, useHead } from '@vueuse/head';
+import { useAuthStore } from "@/stores/auth";
+import dayjs from 'dayjs';
+import ProgressSpinner from 'primevue/progressspinner';
 
-const turno = ref({});
-const cirugias = ref({});
-const entregados = ref({});
-const traslados = ref({});
-const fallecidos = ref({});
+const authStore = useAuthStore();
+axios.defaults.headers.common["Authorization"] = "Bearer " + authStore.authToken;
+
+useHead({ title: "Detalle turno" });
+
+const router = useRoute();
+const id_turno = router.params.id;
+
+const goBack = () => {
+    window.history.back();
+};
+
+const errors = ref(null);
+const loading = ref(false);
+const turno = ref([]);
+const entregados = ref([]);
+const traslados = ref([]);
+const fallecidos = ref([]);
+const cirugias = ref([]);
 const medico_entrega = ref({});
 const medico_recibe = ref({});
-const medicos = ref({});
+const medicos = ref([]);
 const unidades = ref({});
+
+const obtenerTurno = async (id_turno) => {
+    loading.value = true;
+    try {
+        const response = await axios.get(`/obtenerTurno/${id_turno}`);
+        turno.value = response.data.turno;
+        await obtenerEntregados(id_turno);
+        await obtenerTraslados(id_turno);
+        await obtenerFallecidos(id_turno);
+        await obtenerCirugias(id_turno);
+    } catch (err) {
+    console.log(err);
+    if (error.response && err.response.data) {
+      error.value = err.response.data.error;
+      alertaError(error.value);
+    } else {
+      error.value = "Error al obtener el listado de los turnos.";
+      alertaError(error.value);
+    }
+  }
+    loading.value = false;
+}
+
+const obtenerEntregados = async (id_turno) => {
+    try {
+        const response = await axios.get(`/obtenerEntregados/${id_turno}`);
+        entregados.value = response.data.entregados;
+    } catch (err) {
+    console.log(err);
+    if (err.response && err.response.entregados) {
+      error.value = err.response.data.error;
+      alertaError(error.value);
+    } else {
+      error.value = "Error al obtener el listado de los pacientes entregados.";
+      alertaError(error.value);
+    }
+  }
+}
+
+const obtenerTraslados = async (id_turno) => {
+    try {
+        const response = await axios.get(`/obtenerTraslados/${id_turno}`);
+        traslados.value = response.data.traslados;
+    } catch (err) {
+    console.log(err);
+    if (error.response && err.response.traslados) {
+      error.value = err.response.data.error;
+      alertaError(error.value);
+    } else {
+      error.value = "Error al obtener el listado de los pacientes trasladados.";
+      alertaError(error.value);
+    }
+  }
+}
+
+const obtenerFallecidos = async (id_turno) => {
+    try {
+        const response = await axios.get(`/obtenerFallecidos/${id_turno}`);
+        fallecidos.value = response.data.fallecidos;
+    } catch (err) {
+    console.log(err);
+    if (error.response && err.response.fallecidos) {
+      error.value = err.response.data.error;
+      alertaError(error.value);
+    } else {
+      error.value = "Error al obtener el listado de los pacientes fallecidos.";
+      alertaError(error.value);
+    }
+  }
+}
+
+const obtenerCirugias = async (id_turno) => {
+    try {
+        const response = await axios.get(`/obtenerCirugias/${id_turno}`);
+        cirugias.value = response.data.cirugias;
+    } catch (err) {
+    console.log(err);
+    if (error.response && err.response.cirugias) {
+      error.value = err.response.data.error;
+      alertaError(error.value);
+    } else {
+      error.value = "Error al obtener el listado de los pacientes cirugias.";
+      alertaError(error.value);
+    }
+  }
+}
 
 const form = ref({
     turno: turno,
@@ -27,17 +131,19 @@ const form = ref({
     reemplazante: turno.reemplazante,
     medico_entrega: medico_entrega,
     medico_recibe: medico_recibe,
-    // fecha_entrada: fecha_entrada,
-    // fecha_salida: fecha_salida,
 });
-
-const router = useRouter();
 
 const submit = async () => {
     try {
-        const response = await axios.post('/entregaTurno/actualizarCambioTurno', form.value);
-        let responseMessage = response.data.response_message;
-        if (responseMessage.success) {
+        const response = await axios.post('/actualizarCambioTurno', form.value, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const responseData = response.data;
+
+        if (responseMessage.exito) {
             alertaExito(responseMessage.success);
         } else if (responseMessage.error) {
             alertaError(responseMessage.error);
