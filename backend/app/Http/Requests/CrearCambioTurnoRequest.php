@@ -54,8 +54,8 @@ class CrearCambioTurnoRequest extends FormRequest
             'novedades' => 'required',
             'medico_entrega' => 'required|different:medico_recibe',
             'medico_recibe' => 'required|different:medico_entrega',
-            'fecha_entrada' => 'required|date|different:fecha_salida|before:fecha_salida',
-            'fecha_salida' => 'required|date|different:fecha_entrada|after:fecha_entrada',
+            'fecha_llegada' => 'required|date|different:fecha_salida|before:fecha_salida',
+            'fecha_salida' => 'required|date|different:fecha_llegada|after:fecha_llegada',
         ];
     }
 

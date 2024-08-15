@@ -16,6 +16,7 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
         error: null,
         errors: null,
         loading: false,
+        loading_obtener: false,
         total_rows: 0,
         sin_informacion: 'Sin información',
         form: {
@@ -27,7 +28,7 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
             reemplazante: false,
             medico_entrega: '',
             medico_recibe: '',
-            fecha_entrada: '',
+            fecha_llegada: '',
             fecha_salida: '',
         },
         medicos: [],
@@ -38,6 +39,7 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
             this.loading = true;
             try {
                 const response = await axios.get(`/medicoEntregaTurno/${cod_prof}`);
+                console.log(response);
                 this.form.medico_entrega = response.data.medico_entrega;
             } catch (err) {
                 this.manejarError(err, "Error al obtener el listado de los turnos.");
@@ -97,7 +99,7 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
             }
         },
         async obtenerTurno(id_turno) {
-            this.loading = true;
+            this.loading_obtener = true;
             try {
                 const response = await axios.get(`/obtenerTurno/${id_turno}`);
                 this.turno = response.data.turno;
@@ -106,6 +108,30 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
                 await this.obtenerTraslados(id_turno);
                 await this.obtenerFallecidos(id_turno);
                 await this.obtenerCirugias(id_turno);
+            } catch (err) {
+                this.manejarError(err, "Error al obtener el listado de los turnos.");
+            } finally {
+                this.loading_obtener = false;
+            }
+        },
+        async actualizarCambioTurno(router) {
+            this.loading = true;
+            try {
+                const response = await axios.post('/actualizarCambioTurno', this.form, {
+                    headers: {
+                        'Content-type': 'application/json',
+                    }
+                });
+
+                const responseData = response.data;
+
+                if (responseData.exito) {
+                    alertaExito(responseData.exito);
+                    this.resetForm();
+                    router.push('/misTurnos');
+                } else if (responseData.error) {
+                    alertaError(responseData.error);
+                }
             } catch (err) {
                 this.manejarError(err, "Error al obtener el listado de los turnos.");
             } finally {
@@ -122,7 +148,7 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
                 reemplazante: false,
                 medico_entrega: '',
                 medico_recibe: '',
-                fecha_entrada: '',
+                fecha_llegada: '',
                 fecha_salida: '',
             };
         },

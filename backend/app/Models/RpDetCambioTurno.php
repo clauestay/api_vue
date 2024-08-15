@@ -42,30 +42,30 @@ class RpDetCambioTurno extends Model
     // }
 
     //guardar detalle pacientes entregados al final del turno.
-    // public static function guardarEntregados($datos, $id_cambio_turno)
-    // {
-    //     // Limpiar rut
-    //     $dato_rut = $datos['run'];
-    //     $rut_limpio = str_replace('.', '', $dato_rut);
-    //     $rut_dividido = explode('-', $rut_limpio);
-    //     $rut = $rut_dividido[0];
-    //     $digito = $rut_dividido[1];
+    public static function guardarEntregados($datos, $id_cambio_turno)
+    {
+        // Limpiar rut
+        $dato_rut = $datos['run'];
+        $rut_limpio = str_replace('.', '', $dato_rut);
+        $rut_dividido = explode('-', $rut_limpio);
+        $rut = $rut_dividido[0];
+        $digito = $rut_dividido[1];
 
-    //     // buscar ficha
-    //     $paciente = Paciente::where('RUT_PACIENTE', $rut)->first(['id_ambulatorio']);
-    //     $ficha = AmFichas::where('ID_AMBULATORIO', $paciente->id_ambulatorio)->first(['num_ficha']);
+        // buscar ficha
+        $paciente = Paciente::where('RUT_PACIENTE', $rut)->first(['id_ambulatorio']);
+        $ficha = AmFichas::where('ID_AMBULATORIO', $paciente->id_ambulatorio)->first(['num_ficha']);
 
-    //     $entregados = new RpDetCambioTurno();
-    //     $entregados->ID_CAMBIO_TURNO = $id_cambio_turno;
-    //     $entregados->FICHA = $ficha['num_ficha'];
-    //     $entregados->RUT = $rut;
-    //     $entregados->DIGITO = $digito;
-    //     $entregados->PROBLEMAS_INTERVENCION = $datos['problemas'];
-    //     $entregados->EXAMENES = $datos['examenes'];
-    //     $entregados->save();
+        $entregados = new RpDetCambioTurno();
+        $entregados->ID_CAMBIO_TURNO = $id_cambio_turno;
+        $entregados->FICHA = $ficha['num_ficha'];
+        $entregados->RUT = $rut;
+        $entregados->DIGITO = $digito;
+        $entregados->PROBLEMAS_INTERVENCION = $datos['problemas'];
+        $entregados->EXAMENES = $datos['examenes'];
+        $entregados->save();
 
-    //     return $entregados;
-    // }
+        return $entregados;
+    }
 
     public static function getEntregadosTurno($id_cambio_turno)
     {

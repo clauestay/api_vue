@@ -1,6 +1,6 @@
 <script setup>
-import { ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { watch } from "vue";
+// import { useRouter } from "vue-router";
 import FormSection from "@/components/FormSection.vue";
 import EntregaSeccion from "@/views/EntregaTurno/EntregaSeccion.vue";
 import FallecidosSeccion from "@/views/EntregaTurno/FallecidosSeccion.vue";
@@ -13,12 +13,6 @@ import InputError from "@/components/InputError.vue";
 import PrimaryButton from "@/components/PrimaryButton.vue";
 import { validate, clean, format } from "rut.js";
 import { minDate, maxDate } from "@/helpers/AyudaFechas.js";
-import {
-  alertaPregunta,
-  alertaExito,
-  alertaError,
-  alertaErrores,
-} from "@/helpers/AlertasSweetAlert";
 import Select from "primevue/select";
 
 const props = defineProps({
@@ -48,25 +42,18 @@ const props = defineProps({
 // comunicacion ascendente
 const emit = defineEmits(["submit"]);
 
-// Refs para el formulario y errores
-const form = ref(props.form);
-// const errors = ref({});
-
-// Router para la navegación
-const router = useRouter();
-
 // Función para formatear el RUT
 const formatearRut = (rut, arreglo, index, etiqueta) => {
   if (rut) {
     const run = format(rut);
     const v_run = limpiarRut(run);
     if (!validate(run)) {
-      errors.value[`${etiqueta}.${index}.run`] = "El run no es valido.";
+      props.errors[`${etiqueta}.${index}.run`] = "El run no es valido.";
       limpiarInputs(arreglo, index, etiqueta);
     } else {
       arreglo[index].run = run;
       arreglo[index].v_run = v_run;
-      errors.value[`${etiqueta}.${index}.run`] = "";
+      props.errors[`${etiqueta}.${index}.run`] = "";
     }
   } else {
     limpiarInputs(arreglo, index, etiqueta);
@@ -137,20 +124,20 @@ const validarTurnoExistente = (llegada, salida, medico_entrega) => {
 if (!props.updating) {
   watch(
     [
-      () => form.value.fecha_entrada,
-      () => form.value.fecha_salida,
-      () => form.value.medico_entrega,
+      () => props.form.fecha_llegada,
+      () => props.form.fecha_salida,
+      () => props.form.medico_entrega,
     ],
     () => {
       if (
-        form.value.fecha_entrada &&
-        form.value.fecha_salida &&
-        form.value.medico_entrega
+        props.form.fecha_llegada &&
+        props.form.fecha_salida &&
+        props.form.medico_entrega
       ) {
         validarTurnoExistente(
-          form.value.fecha_entrada,
-          form.value.fecha_salida,
-          form.value.medico_entrega
+          props.form.fecha_llegada,
+          props.form.fecha_salida,
+          props.form.medico_entrega
         );
       }
     }
@@ -167,6 +154,7 @@ if (!props.updating) {
 
 
 <template>
+  {{ props.form }}
   <FormSection @submitted="$emit('submit')">
     <template #title>
       {{
@@ -190,10 +178,10 @@ if (!props.updating) {
               <label for="medico_entrega">Entrada</label>
               <div class="flex items-center gap-2 2xl:mr-52">
                 <Input
-                  v-model="form.fecha_entrada"
+                  v-model="props.form.fecha_llegada"
                   placeholder=""
-                  :class="{ 'border-red-400': props.errors?.fecha_entrada?.[0] }"
-                  :aria-label="form.fecha_entrada"
+                  :class="{ 'border-red-400': props.errors?.fecha_llegada }"
+                  :aria-label="props.form.fecha_llegada"
                   type="datetime-local"
                   :min="minDate"
                   :max="maxDate"
@@ -201,16 +189,16 @@ if (!props.updating) {
                   autofocus
                 />
               </div>
-              <InputError class="mt-2" :message="props.errors?.fecha_entrada?.[0]" />
+              <InputError class="mt-2" :message="props.errors?.fecha_llegada" />
             </div>
             <div class="md:w-1/2 px-3">
               <label for="medico_entrega">Salida</label>
               <div class="flex items-center gap-2 2xl:mr-52">
                 <Input
-                  v-model="form.fecha_salida"
+                  v-model="props.form.fecha_salida"
                   placeholder=""
-                  :class="{ 'border-red-400': props.errors?.fecha_salida?.[0] }"
-                  :aria-label="form.fecha_salida"
+                  :class="{ 'border-red-400': props.errors?.fecha_salida }"
+                  :aria-label="props.form.fecha_salida"
                   type="datetime-local"
                   :min="minDate"
                   :max="maxDate"
@@ -226,7 +214,7 @@ if (!props.updating) {
               <label for="medico_entrega">Médico entrega</label>
               <Select
                 :disabled="!updating"
-                v-model="form.medico_entrega"
+                v-model="props.form.medico_entrega"
                 :options="props.medicos"
                 filter
                 showClear
@@ -254,7 +242,7 @@ if (!props.updating) {
             <div class="md:w-1/2 px-3">
               <label for="medico_recibe">Médico recibe</label>
               <Select
-                v-model="form.medico_recibe"
+                v-model="props.form.medico_recibe"
                 :options="props.medicos"
                 filter
                 showClear
@@ -283,13 +271,13 @@ if (!props.updating) {
       </div>
 
       <EntregaSeccion
-        :form="form"
+        :form="props.form"
         :formatearRut="formatearRut"
         :limpiarRut="limpiarRut"
         :updating="props.updating"
       />
 
-      <FallecidosSeccion
+      <!-- <FallecidosSeccion
         :form="form"
         :formatearRut="formatearRut"
         :limpiarRut="limpiarRut"
@@ -309,7 +297,7 @@ if (!props.updating) {
         :formatear-rut="formatearRut"
         :limpiarRut="limpiarRut"
         :updating="props.updating"
-      />
+      /> -->
 
       <div class="bg-gray-200 mt-8 p-4 overflow-hidden shadow-xl sm:rounded-lg">
         <div class="flex flex-col">
@@ -318,7 +306,7 @@ if (!props.updating) {
               <div>
                 <Label for="novedades" value="Ingrese Novedades del turno:" />
                 <TextArea
-                  v-model="form.novedades"
+                  v-model="props.form.novedades"
                   :class="{ 'border-red-400': props.errors?.novedades?.[0] }"
                   placeholder="Ingrese Novedades del turno"
                   type="text"
@@ -338,8 +326,8 @@ if (!props.updating) {
         <div class="float-right">
           <PrimaryButton
             class="bg-morado-base hover:bg-morado-dark"
-            :class="{ 'opacity-25': form.processing }"
-            :disabled="form.processing"
+            :class="{ 'opacity-25': props.form.processing }"
+            :disabled="props.form.processing"
           >
             {{ props.updating ? "Actualizar" : "Guardar" }}
           </PrimaryButton>

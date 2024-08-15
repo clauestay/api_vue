@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute } from "vue-router";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Banner from "@/components/Banner.vue";
 import Label from '@/components/InputLabel.vue';
@@ -11,17 +11,16 @@ import dayjs from 'dayjs';
 import ProgressSpinner from 'primevue/progressspinner';
 import { useEntregaTurnoStore } from '@/stores/entregaTurno';
 
-const router = useRoute();
-const id_turno = router.params.id;
+const route = useRoute();
 
 const entregaTurnoStore = useEntregaTurnoStore();
 
 onMounted(() => {
+    const id_turno = route.params.id;
     entregaTurnoStore.obtenerTurno(id_turno);
 })
 
 useHead({ title: "Detalle turno" });
-
 
 const goBack = () => {
     window.history.back();
@@ -194,8 +193,6 @@ const generarPdf = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- traslados -->
                                 <br>
                                 <div>
                                     <div class="text-center pb-2">
@@ -276,8 +273,6 @@ const generarPdf = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- fallecidos -->
                                 <br>
                                 <div>
                                     <div class="text-center pb-2">
@@ -335,8 +330,6 @@ const generarPdf = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- cirugias -->
                                 <br>
                                 <div>
                                     <div class="text-center pb-2">
@@ -406,15 +399,12 @@ const generarPdf = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- seccion detalles turno -->
                                 <div class="mt-8 p-4 overflow-hidden shadow-2xl sm:rounded-lg border border-[#AE97C2]">
                                     <div class="flex flex-col">
                                         <div class="mx-10 md:flex mb-6">
                                             <div class="md:w-full px-3">
                                                 <div>
                                                     <Label class="font-bold text-gris-dark">Novedades del turno</Label>
-                                                    <!-- <Label class="text-gris-dark">{{ turno.novedades }}</Label> -->
                                                 </div>
                                             </div>
                                         </div>

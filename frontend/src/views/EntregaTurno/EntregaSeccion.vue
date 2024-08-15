@@ -88,7 +88,6 @@ const buscarInfoPacienteRut = async (rut, index) => {
 if (props.updating) {
   onMounted(() => {
     // Llamar a formatearRut para cada elemento de la lista
-    console.log(props.form.entregados);
     props.form.entregados.forEach((entregado, index) => {
       props.formatearRut(
         entregado.run,

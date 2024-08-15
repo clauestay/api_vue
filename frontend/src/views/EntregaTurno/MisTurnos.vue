@@ -126,11 +126,13 @@ const options = ref({
 });
 
 const detalle_turno = (id_turno) => {
-  router.push({ name: "Detalle-turno", params: { id: id_turno } });
+  router.push({ name: 'Detalle-turno', params: { id: id_turno } });
 };
 
 const editar_turno = (id_turno) => {
-  router.push({ name: "Editar", params: { id: id_turno } });
+  console.log(id_turno);
+  // router.push({ name: 'Editar', params: { id: id_turno } });
+  router.push(`/editar/${id_turno}`);
 };
 
 const permitirEditarTurno = (fecha) => {

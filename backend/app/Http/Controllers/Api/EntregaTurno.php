@@ -297,10 +297,10 @@ class EntregaTurno extends Controller
             DB::beginTransaction();
 
             // Guardar entrega turno.
-            $dataTurno = $request->only('fecha_entrada', 'fecha_salida', 'reemplazante', 'medico_entrega', 'medico_recibe', 'novedades', 'cirugias', 'fallecidos', 'traslados');
+            $dataTurno = $request->only('fecha_llegada', 'fecha_salida', 'reemplazante', 'medico_entrega', 'medico_recibe', 'novedades', 'cirugias', 'fallecidos', 'traslados');
 
             // Comprobar si el turno ya existe.
-            $existeTurno = RpCambioTurno::compruebaTurno($dataTurno["medico_entrega"], $dataTurno["fecha_entrada"], $dataTurno["fecha_salida"]);
+            $existeTurno = RpCambioTurno::compruebaTurno($dataTurno["medico_entrega"], $dataTurno["fecha_llegada"], $dataTurno["fecha_salida"]);
             if ($existeTurno) {
                 $llegada = Carbon::parse($existeTurno->fecha_llegada);
                 $salida = Carbon::parse($existeTurno->fecha_salida);
@@ -363,11 +363,11 @@ class EntregaTurno extends Controller
     public function comprobarTurnoExistente(Request $request): JsonResponse
     {
         $medico_entrega = $request->medico_entrega;
-        $fecha_entrada = $request->llegada;
+        $fecha_llegada = $request->llegada;
         $fecha_salida = $request->salida;
 
         $response = null;
-        $existeTurno = RpCambioTurno::compruebaTurno($medico_entrega, $fecha_entrada, $fecha_salida);
+        $existeTurno = RpCambioTurno::compruebaTurno($medico_entrega, $fecha_llegada, $fecha_salida);
         if ($existeTurno) {
             $llegada = Carbon::parse($existeTurno->fecha_llegada);
             $salida = Carbon::parse($existeTurno->fecha_salida);

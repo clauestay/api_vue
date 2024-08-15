@@ -171,11 +171,11 @@ class RpCambioTurno extends Model
             ->paginate(10);
     }
 
-    public static function compruebaTurno($medico_entrega, $fecha_entrada, $fecha_salida)
+    public static function compruebaTurno($medico_entrega, $fecha_llegada, $fecha_salida)
     {
-        $fecha_entrada = $fecha_entrada ? carbon::parse($fecha_entrada) : null;
-        if ($fecha_entrada) {
-            $fecha_entrada->format('Y-m-d H:i:s');
+        $fecha_llegada = $fecha_llegada ? carbon::parse($fecha_llegada) : null;
+        if ($fecha_llegada) {
+            $fecha_llegada->format('Y-m-d H:i:s');
         }
 
         $fecha_salida = $fecha_salida ? carbon::parse($fecha_salida) : null;
@@ -186,24 +186,24 @@ class RpCambioTurno extends Model
         // return self::select('*')
         //     ->where('DOCTOR_ENTREGA_TURNO', $cod_prof)
         //     ->where('DOCTOR_RECIBE_TURNO', '!=', $cod_prof)
-        //     ->where('FECHA_LLEGADA', ">=", $fecha_entrada)
+        //     ->where('FECHA_LLEGADA', ">=", $fecha_llegada)
         //     ->where('FECHA_SALIDA', "<=", $fecha_salida)
         //     ->where('ESTADO', 1)
         //     ->orderBy('ID_CAMBIO_TURNO', 'DESC')
         //     ->first();
         return self::select('*')
         ->where('DOCTOR_ENTREGA_TURNO', $medico_entrega)
-        ->where(function ($query) use ($fecha_entrada, $fecha_salida) {
-            $query->where(function ($q) use ($fecha_entrada) {
-                $q->where('FECHA_LLEGADA', '<=', $fecha_entrada)
-                  ->where('FECHA_SALIDA', '>=', $fecha_entrada);
+        ->where(function ($query) use ($fecha_llegada, $fecha_salida) {
+            $query->where(function ($q) use ($fecha_llegada) {
+                $q->where('FECHA_LLEGADA', '<=', $fecha_llegada)
+                  ->where('FECHA_SALIDA', '>=', $fecha_llegada);
             })
             ->orWhere(function ($q) use ($fecha_salida) {
                 $q->where('FECHA_LLEGADA', '<=', $fecha_salida)
                   ->where('FECHA_SALIDA', '>=', $fecha_salida);
             })
-            ->orWhere(function ($q) use ($fecha_entrada, $fecha_salida) {
-                $q->where('FECHA_LLEGADA', '>=', $fecha_entrada)
+            ->orWhere(function ($q) use ($fecha_llegada, $fecha_salida) {
+                $q->where('FECHA_LLEGADA', '>=', $fecha_llegada)
                   ->where('FECHA_SALIDA', '<=', $fecha_salida);
             });
         })
@@ -248,9 +248,9 @@ class RpCambioTurno extends Model
 
     public static function guardarTurno($datos)
     {
-        $fecha_entrada = $datos["fecha_entrada"] ? carbon::parse($datos["fecha_entrada"]) : null;
-        if ($fecha_entrada) {
-            $fecha_entrada->format('Y-m-d H:i:s');
+        $fecha_llegada = $datos["fecha_llegada"] ? carbon::parse($datos["fecha_llegada"]) : null;
+        if ($fecha_llegada) {
+            $fecha_llegada->format('Y-m-d H:i:s');
         }
 
         $fecha_salida = $datos["fecha_salida"] ? carbon::parse($datos["fecha_salida"]) : null;
@@ -258,14 +258,14 @@ class RpCambioTurno extends Model
             $fecha_salida->format('Y-m-d H:i:s');
         }
 
-        $cantidad_horas = $fecha_salida->diffInHours($fecha_entrada);
+        $cantidad_horas = $fecha_salida->diffInHours($fecha_llegada);
 
         $turno = new RpCambioTurno();
         $turno->DOCTOR_ENTREGA_TURNO = $datos['medico_entrega']['id'];
         $turno->DOCTOR_RECIBE_TURNO = $datos['medico_recibe']['id'];
         $turno->FECHA = carbon::parse(now())->format('Y-m-d H:i:s');
         $turno->USUARIO = Auth::user()->usuario_id;
-        $turno->FECHA_LLEGADA = $fecha_entrada;
+        $turno->FECHA_LLEGADA = $fecha_llegada;
         $turno->FECHA_SALIDA = $fecha_salida;
         $turno->QHORAS = $cantidad_horas;
         $turno->NOVEDADES = $datos['novedades'];
@@ -287,9 +287,9 @@ class RpCambioTurno extends Model
             ->first();
 
         // trabajar los datos
-        $fecha_entrada = $datos["fecha_entrada"] ? carbon::parse($datos["fecha_entrada"]) : null;
-        if ($fecha_entrada) {
-            $fecha_entrada->format('Y-m-d H:i:s');
+        $fecha_llegada = $datos["fecha_llegada"] ? carbon::parse($datos["fecha_llegada"]) : null;
+        if ($fecha_llegada) {
+            $fecha_llegada->format('Y-m-d H:i:s');
         }
 
         $fecha_salida = $datos["fecha_salida"] ? carbon::parse($datos["fecha_salida"]) : null;
@@ -300,7 +300,7 @@ class RpCambioTurno extends Model
         $update_turno->DOCTOR_ENTREGA_TURNO = $datos['medico_entrega']['id'];
         $update_turno->DOCTOR_RECIBE_TURNO = $datos['medico_recibe']['id'];
         $update_turno->USUARIO = Auth::user()->usuario_id;
-        $update_turno->FECHA_LLEGADA = $fecha_entrada;
+        $update_turno->FECHA_LLEGADA = $fecha_llegada;
         $update_turno->FECHA_SALIDA = $fecha_salida;
         $update_turno->NOVEDADES = $datos['novedades'];
         // $update_turno->CANTIDAD_CIRUGIAS = $datos['cantidad_cirugias'];
