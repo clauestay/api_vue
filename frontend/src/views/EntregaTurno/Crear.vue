@@ -34,56 +34,6 @@ const unidades = computed(() => entregaTurnoStore.unidades);
 const submit = () => {
     entregaTurnoStore.guardarCambioTurno(router);
 }
-
-// Función para manejar el submit del formulario
-// const submit = async () => {
-//     try {
-//         const response = await axios.post('/guardarCambioTurno', form.value, {
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             }
-//         });
-
-//         const responseData = response.data;
-
-//         if (responseData.exito) {
-//             alertaExito(responseData.exito);
-//             form.value = {
-//                 entregados: [],
-//                 traslados: [],
-//                 fallecidos: [],
-//                 cirugias: [],
-//                 novedades: '',
-//                 reemplazante: false,
-//                 medico_entrega: medico_entrega ?? '',
-//                 medico_recibe: '',
-//                 fecha_entrada: '',
-//                 fecha_salida: '',
-//             };
-//             router.push('/misTurnos');
-//         } else if (responseData.error) {
-//             alertaError(responseData.error);
-//         }
-//     } catch (err) {
-//         console.error(err);
-//         const responseData = err.response?.data;
-
-//         if (responseData) {
-//             if (err.response.status === 409) {
-//                 alertaError(responseData.info);
-//             } else if (responseData.errors) {
-//                 errors.value = responseData.errors;
-//                 alertaErrores(errors.value);
-//             } else if (responseData.error) {
-//                 alertaError(responseData.error);
-//             } else {
-//                 alertaError("Se ha producido un error desconocido.");
-//             }
-//         } else {
-//             alertaError("Se ha producido un error en la red o un error inesperado.");
-//         }
-//     }
-// };
 </script>
 
 <template>

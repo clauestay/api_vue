@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Banner from "@/components/Banner.vue";
@@ -7,143 +7,37 @@ import Label from '@/components/InputLabel.vue';
 import FooterInc from "@/components/FooterInc.vue";
 import Button from 'primevue/button';
 import { useHead } from "@vueuse/head";
-import {
-  alertaExito,
-  alertaError,
-  alertaErrores,
-} from "@/helpers/AlertasSweetAlert";
-import { onMounted } from 'vue';
-import { useAuthStore } from "@/stores/auth";
 import dayjs from 'dayjs';
 import ProgressSpinner from 'primevue/progressspinner';
-
-const authStore = useAuthStore();
-axios.defaults.headers.common["Authorization"] = "Bearer " + authStore.authToken;
-
-useHead({ title: "Detalle turno" });
+import { useEntregaTurnoStore } from '@/stores/entregaTurno';
 
 const router = useRoute();
 const id_turno = router.params.id;
+
+const entregaTurnoStore = useEntregaTurnoStore();
+
+onMounted(() => {
+    entregaTurnoStore.obtenerTurno(id_turno);
+})
+
+useHead({ title: "Detalle turno" });
+
 
 const goBack = () => {
     window.history.back();
 };
 
-const error = ref(null);
-const loading = ref(false);
-const turno = ref([]);
-const entregados = ref([]);
-const traslados = ref([]);
-const fallecidos = ref([]);
-const cirugias = ref([]);
-
-const obtenerTurno = async (id_turno) => {
-    loading.value = true;
-    try {
-        const response = await axios.get(`/obtenerTurno/${id_turno}`);
-        turno.value = response.data.turno;
-        await obtenerEntregados(id_turno);
-        await obtenerTraslados(id_turno);
-        await obtenerFallecidos(id_turno);
-        await obtenerCirugias(id_turno);
-    } catch (err) {
-    console.log(err);
-    if (error.response && err.response.data) {
-      error.value = err.response.data.error;
-      alertaError(error.value);
-    } else {
-      error.value = "Error al obtener el listado de los turnos.";
-      alertaError(error.value);
-    }
-  }
-    loading.value = false;
+const loading = computed(() => entregaTurnoStore.loading);
+const sinInfo = computed(() => entregaTurnoStore.sinInfo);
+const turno = computed(() => entregaTurnoStore.turno);
+const entregados = computed(() => entregaTurnoStore.entregados);
+const traslados = computed(() => entregaTurnoStore.traslados);
+const fallecidos = computed(() => entregaTurnoStore.fallecidos);
+const cirugias = computed(() => entregaTurnoStore.cirugias);
+const generarPdf = () => {
+    entregaTurnoStore.generarPdf(id_turno);
 }
 
-const obtenerEntregados = async (id_turno) => {
-    try {
-        const response = await axios.get(`/obtenerEntregados/${id_turno}`);
-        entregados.value = response.data.entregados;
-    } catch (err) {
-    console.log(err);
-    if (err.response && err.response.entregados) {
-      error.value = err.response.data.error;
-      alertaError(error.value);
-    } else {
-      error.value = "Error al obtener el listado de los pacientes entregados.";
-      alertaError(error.value);
-    }
-  }
-}
-
-const obtenerTraslados = async (id_turno) => {
-    try {
-        const response = await axios.get(`/obtenerTraslados/${id_turno}`);
-        traslados.value = response.data.traslados;
-    } catch (err) {
-    console.log(err);
-    if (error.response && err.response.traslados) {
-      error.value = err.response.data.error;
-      alertaError(error.value);
-    } else {
-      error.value = "Error al obtener el listado de los pacientes trasladados.";
-      alertaError(error.value);
-    }
-  }
-}
-
-const obtenerFallecidos = async (id_turno) => {
-    try {
-        const response = await axios.get(`/obtenerFallecidos/${id_turno}`);
-        fallecidos.value = response.data.fallecidos;
-    } catch (err) {
-    console.log(err);
-    if (error.response && err.response.fallecidos) {
-      error.value = err.response.data.error;
-      alertaError(error.value);
-    } else {
-      error.value = "Error al obtener el listado de los pacientes fallecidos.";
-      alertaError(error.value);
-    }
-  }
-}
-
-const obtenerCirugias = async (id_turno) => {
-    try {
-        const response = await axios.get(`/obtenerCirugias/${id_turno}`);
-        cirugias.value = response.data.cirugias;
-    } catch (err) {
-    console.log(err);
-    if (error.response && err.response.cirugias) {
-      error.value = err.response.data.error;
-      alertaError(error.value);
-    } else {
-      error.value = "Error al obtener el listado de los pacientes cirugias.";
-      alertaError(error.value);
-    }
-  }
-}
-
-const generarPdf = async () => {
-    try {
-        const response = await axios.get(`/generarPdfTurno/${id_turno}`, {
-            responseType: "blob",
-        });
-        const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
-        const link = document.createElement("a");
-        link.href = url;
-        link.target = "_blank";
-        link.click();
-    } catch (err) {
-        console.log(err);
-        console.log("Error al generar el pdf ");
-    }
-}
-
-const sinInfo = "Sin información";
-
-onMounted(() => {
-    obtenerTurno(id_turno);
-})
 </script>
 
 <template>
@@ -154,19 +48,19 @@ onMounted(() => {
         <div class="py-2">
             <div class="w-5/6 mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-2xl sm:rounded-lg">
-                    <div>
-                        <div class="p-6 bg-white border-gray-200 mt-6">
-                            <Button @click="goBack()"
-                                label="Volver"
-                                severity="warn">
-                            </Button>
-                        </div>
-                        <div class="text-center pb-2">
-                            <Label class="text-2xl font-semibold uppercase text-gris-dark">Detalle entrega turno</Label>
-                        </div>
-                        <div v-if="loading" class="flex justify-center items-center">
-                            <ProgressSpinner />
-                        </div>
+                    <div class="p-6 bg-white border-gray-200 mt-6">
+                        <Button @click="goBack()"
+                            label="Volver"
+                            severity="warn">
+                        </Button>
+                    </div>
+                    <div class="text-center pb-2">
+                        <Label class="text-2xl font-semibold uppercase text-gris-dark">Detalle entrega turno</Label>
+                    </div>
+                    <div v-if="loading" class="flex justify-center items-center">
+                        <ProgressSpinner />
+                    </div>
+                    <div v-else>
                         <div class="p-6 bg-white">
                             <div class="flex flex-col">
                                 <div class="grid grid-cols-2 gap-4">
@@ -179,10 +73,10 @@ onMounted(() => {
                                                 <div class="md:w-1/2">
                                                     <div class="mx-10">
                                                         <Label class="text-gris-dark">
-                                                            {{ turno.medico_entrega?.nombre1_prof }}
-                                                            {{ turno.medico_entrega?.nombre2_prof }}
-                                                            {{ turno.medico_entrega?.apepat_prof }}
-                                                            {{ turno.medico_entrega?.apemat_prof }}
+                                                            {{ turno?.medico_entrega?.nombre1_prof }}
+                                                            {{ turno?.medico_entrega?.nombre2_prof }}
+                                                            {{ turno?.medico_entrega?.apepat_prof }}
+                                                            {{ turno?.medico_entrega?.apemat_prof }}
                                                         </Label>
                                                     </div>
                                                 </div>
@@ -194,10 +88,10 @@ onMounted(() => {
                                                 <div class="md:w-1/2">
                                                     <div class="mx-10">
                                                         <Label class="text-gris-dark">
-                                                            {{ turno.medico_recibe?.nombre1_prof }}
-                                                            {{ turno.medico_recibe?.nombre2_prof }}
-                                                            {{ turno.medico_recibe?.apepat_prof }}
-                                                            {{ turno.medico_recibe?.apemat_prof }}
+                                                            {{ turno?.medico_recibe?.nombre1_prof }}
+                                                            {{ turno?.medico_recibe?.nombre2_prof }}
+                                                            {{ turno?.medico_recibe?.apepat_prof }}
+                                                            {{ turno?.medico_recibe?.apemat_prof }}
                                                         </Label>
                                                     </div>
                                                 </div>
@@ -520,7 +414,7 @@ onMounted(() => {
                                             <div class="md:w-full px-3">
                                                 <div>
                                                     <Label class="font-bold text-gris-dark">Novedades del turno</Label>
-                                                    <Label class="text-gris-dark">{{ turno.novedades }}</Label>
+                                                    <!-- <Label class="text-gris-dark">{{ turno.novedades }}</Label> -->
                                                 </div>
                                             </div>
                                         </div>

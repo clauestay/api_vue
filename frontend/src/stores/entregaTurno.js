@@ -17,6 +17,7 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
         errors: null,
         loading: false,
         total_rows: 0,
+        sin_informacion: 'Sin información',
         form: {
             entregados: [],
             traslados: [],
@@ -100,6 +101,7 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
             try {
                 const response = await axios.get(`/obtenerTurno/${id_turno}`);
                 this.turno = response.data.turno;
+                console.log(this.turno);
                 await this.obtenerEntregados(id_turno);
                 await this.obtenerTraslados(id_turno);
                 await this.obtenerFallecidos(id_turno);
@@ -149,6 +151,22 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
                 this.manejarError(err, "Error al obtener el listado de los turnos.");
             } finally {
                 this.loading = false;
+            }
+        },
+        async generarPdf(id_turno) {
+            try {
+                const response = await axios.get(`/generarPdfTurno/${id_turno}`, {
+                    responseType: "blob",
+                });
+
+                const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                const link = document.createElement("a");
+                link.href = url;
+                link.target = "_blank";
+                link.click();
+            } catch (err) {
+                console.log(err);
+                console.log("Error al generar el pdf ");
             }
         },
         async borrarTurno(id_turno) {
