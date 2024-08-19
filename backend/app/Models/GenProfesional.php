@@ -18,4 +18,9 @@ class GenProfesional extends Model
 
     // definiendo que esta sera la clave primaria.
     protected $primaryKey = 'cod_prof';
+
+    public function getNombreCompletoAttribute()
+    {
+        return ($this->attributes['nombre1_prof'] ?? '') . ' ' . ($this->attributes['nombre2_prof'] ?? '') . ' ' . ($this->attributes['apepat_prof'] ?? '') . ' ' . ($this->attributes['apemat_prof']);
+    }
 }

@@ -48,30 +48,21 @@ const cols =
       type: "date",
     },
     {
-      data: "medico_entrega.nombre1_prof",
+      data: "medico_entrega.sta_descripcion",
       title: "Medico Residente",
-      render: (data, type, row) => {
-        return (
-          row.medico_entrega.nombre1_prof +
-          " " +
-          row.medico_entrega.apepat_prof +
-          " " +
-          row.medico_entrega.apemat_prof
-        );
-      },
     },
     {
-      data: "medico_recibe.nombre1_prof",
+      data: "medico_recibe.sta_descripcion",
       title: "Medico Recibe",
-      render: (data, type, row) => {
-        return (
-          row.medico_recibe.nombre1_prof +
-          " " +
-          row.medico_recibe.apepat_prof +
-          " " +
-          row.medico_recibe.apemat_prof
-        );
-      },
+      // render: (data, type, row) => {
+      //   return (
+      //     row.medico_recibe.nombre1_prof +
+      //     " " +
+      //     row.medico_recibe.apepat_prof +
+      //     " " +
+      //     row.medico_recibe.apemat_prof
+      //   );
+      // },
     },
     {
       data: null,
@@ -217,9 +208,9 @@ const permitirEditarTurno = (fecha) => {
                         >
                           <IconIr title="Ver" />
                         </div>
+                        <!-- v-if="permitirEditarTurno(data.cellData.fecha)" -->
                         <div
-                          v-if="permitirEditarTurno(data.cellData.fecha)"
-                          class="inline-flex gap-2"
+                          class="inline-flex gap-2 bg-yellow-400"
                           @click="editar_turno(data.cellData.id_cambio_turno)"
                         >
                           <IconEdit title="Editar" />

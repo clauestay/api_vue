@@ -65,7 +65,7 @@ const buscarInfoPacienteRut = async (rut, index) => {
     if (validate(rut)) {
         rut = props.limpiarRut(rut);
         try {
-            const response = await axios.get(`/buscarInfoPacienteRut/${rut}`);
+            const response = await axios.get(`/obtenerInfoPaciente/${rut}`);
             let data = response.data.info_paciente;
             if (data != null) {
                 props.form.cirugias[index].nombre = data.nombre_completo;
@@ -163,8 +163,8 @@ if (props.updating) {
                             <div class="flex flex-col">
                                 <!-- :class="{ 'border-red-400': props.form.errors[`cirugias.${index}.fecha_inicio`] }" -->
                                 <Input v-model="cirugia.fecha_inicio"
-                                    :aria-label="`props.form.cirugias.${index}.fecha_inicio`" :min="minDate"
-                                    :max="maxDate" type="datetime-local" class="mt-1 block w-full" autofocus />
+                                    :aria-label="`props.form.cirugias.${index}.fecha_inicio`"
+                                    type="datetime-local" class="mt-1 block w-full" autofocus />
                                 <!-- <InputError class="mt-2" :message="props.form.errors[`cirugias.${index}.fecha_inicio`]" /> -->
                             </div>
                         </div>
@@ -173,7 +173,7 @@ if (props.updating) {
                             <div class="flex flex-col">
                                 <!-- :class="{ 'border-red-400': props.form.errors[`cirugias.${index}.fecha_fin`] }" -->
                                 <Input v-model="cirugia.fecha_fin"
-                                    :aria-label="`props.form.cirugias.${index}.fecha_fin`" :min="minDate" :max="maxDate"
+                                    :aria-label="`props.form.cirugias.${index}.fecha_fin`"
                                     type="datetime-local" class="mt-1 block w-full" autofocus />
                                 <!-- <InputError class="mt-2" :message="props.form.errors[`cirugias.${index}.fecha_fin`]" /> -->
                             </div>

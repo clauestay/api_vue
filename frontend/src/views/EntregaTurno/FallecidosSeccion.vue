@@ -62,7 +62,7 @@ const buscarInfoPacienteFallecido = async (rut, index) => {
     if (validate(rut)) {
         rut = props.limpiarRut(rut);
         try {
-            const response = await axios.get(`/buscarInfoPacienteRut/${rut}`);
+            const response = await axios.get(`/obtenerInfoPaciente/${rut}`);
             let data = response.data.info_paciente;
             props.form.fallecidos[index].nombre = data.nombre_completo;
             props.form.fallecidos[index].diagnostico = data.diagnostico;

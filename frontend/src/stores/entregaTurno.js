@@ -20,6 +20,7 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
         total_rows: 0,
         sin_informacion: 'Sin información',
         form: {
+            id_turno: '',
             entregados: [],
             traslados: [],
             fallecidos: [],
@@ -39,7 +40,6 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
             this.loading = true;
             try {
                 const response = await axios.get(`/medicoEntregaTurno/${cod_prof}`);
-                console.log(response);
                 this.form.medico_entrega = response.data.medico_entrega;
             } catch (err) {
                 this.manejarError(err, "Error al obtener el listado de los turnos.");
@@ -133,7 +133,24 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
                     alertaError(responseData.error);
                 }
             } catch (err) {
-                this.manejarError(err, "Error al obtener el listado de los turnos.");
+                // this.manejarError(err, "Error al actualizar el turno.");
+                console.error(err);
+                const responseData = err.response?.data;
+
+                if (responseData) {
+                    if (err.response.status === 409) {
+                        alertaError(responseData.info);
+                    } else if (responseData.errors) {
+                        this.errors = responseData.errors;
+                        alertaErrores(this.errors);
+                    } else if (responseData.error) {
+                        alertaError(responseData.error);
+                    } else {
+                        alertaError("Se ha producido un error desconocido.");
+                    }
+                } else {
+                    alertaError("Se ha producido un error en la red o un error inesperado.");
+                }
             } finally {
                 this.loading = false;
             }
@@ -151,6 +168,7 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
                 fecha_llegada: '',
                 fecha_salida: '',
             };
+            this.errors = {};
         },
         async getMisTurnos() {
             this.loading = true;

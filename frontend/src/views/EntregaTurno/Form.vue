@@ -28,14 +28,14 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  errors: {
-    type: Object,
-    required: false,
-  },
   updating: {
     type: Boolean,
     required: false,
     default: false,
+  },
+  errors: {
+    type: Object,
+    required: true,
   },
 });
 
@@ -48,12 +48,12 @@ const formatearRut = (rut, arreglo, index, etiqueta) => {
     const run = format(rut);
     const v_run = limpiarRut(run);
     if (!validate(run)) {
-      props.errors[`${etiqueta}.${index}.run`] = "El run no es valido.";
+      // props.errors[`${etiqueta}.${index}.run`] = "El run no es valido.";
       limpiarInputs(arreglo, index, etiqueta);
     } else {
       arreglo[index].run = run;
       arreglo[index].v_run = v_run;
-      props.errors[`${etiqueta}.${index}.run`] = "";
+      // props.errors[`${etiqueta}.${index}.run`] = "";
     }
   } else {
     limpiarInputs(arreglo, index, etiqueta);
@@ -154,7 +154,6 @@ if (!props.updating) {
 
 
 <template>
-  {{ props.form }}
   <FormSection @submitted="$emit('submit')">
     <template #title>
       {{
@@ -189,7 +188,7 @@ if (!props.updating) {
                   autofocus
                 />
               </div>
-              <InputError class="mt-2" :message="props.errors?.fecha_llegada" />
+              <InputError class="mt-2" :message="props.errors?.fecha_llegada?.[0]" />
             </div>
             <div class="md:w-1/2 px-3">
               <label for="medico_entrega">Salida</label>
@@ -217,6 +216,7 @@ if (!props.updating) {
                 v-model="props.form.medico_entrega"
                 :options="props.medicos"
                 filter
+                checkmark
                 showClear
                 optionLabel="name"
                 placeholder="Buscar medico"
@@ -245,6 +245,7 @@ if (!props.updating) {
                 v-model="props.form.medico_recibe"
                 :options="props.medicos"
                 filter
+                checkmark
                 showClear
                 optionLabel="name"
                 placeholder="Buscar medico"
@@ -275,17 +276,18 @@ if (!props.updating) {
         :formatearRut="formatearRut"
         :limpiarRut="limpiarRut"
         :updating="props.updating"
+        :errors="props.errors"
       />
 
-      <!-- <FallecidosSeccion
-        :form="form"
+      <FallecidosSeccion
+        :form="props.form"
         :formatearRut="formatearRut"
         :limpiarRut="limpiarRut"
         :updating="props.updating"
       />
 
       <TrasladosSeccion
-        :form="form"
+        :form="props.form"
         :unidades="props.unidades"
         :formatearRut="formatearRut"
         :limpiarRut="limpiarRut"
@@ -293,11 +295,11 @@ if (!props.updating) {
       />
 
       <CirugiasSeccion
-        :form="form"
+        :form="props.form"
         :formatear-rut="formatearRut"
         :limpiarRut="limpiarRut"
         :updating="props.updating"
-      /> -->
+      />
 
       <div class="bg-gray-200 mt-8 p-4 overflow-hidden shadow-xl sm:rounded-lg">
         <div class="flex flex-col">

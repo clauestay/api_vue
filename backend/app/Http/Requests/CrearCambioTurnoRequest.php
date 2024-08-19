@@ -24,18 +24,33 @@ class CrearCambioTurnoRequest extends FormRequest
         return [
             // entregados.
             'entregados.*.run' => 'required',
-            'entregados.*.v_run' => 'required_unless:entregados.*.run,null|exists:SINERGIA.GENINC.tab_paciente,rut_paciente',
+            'entregados.*.v_run' => [
+                'required_if:editable,true',
+                'nullable',
+                'exists:SINERGIA.GENINC.tab_paciente,rut_paciente'
+            ],
+            // 'entregados.*.v_run' => 'required_unless:entregados.*.run,null|exists:SINERGIA.GENINC.tab_paciente,rut_paciente',
             'entregados.*.problemas' => 'required',
             'entregados.*.examenes' => 'required',
 
             // fallecidos
             'fallecidos.*.run' => 'required',
-            'fallecidos.*.v_run' => 'required_unless:fallecidos.*.run,null|exists:SINERGIA.GENINC.tab_paciente,rut_paciente',
+            'fallecidos.*.v_run' => [
+                'required_if:editable,true',
+                'nullable',
+                'exists:SINERGIA.GENINC.tab_paciente,rut_paciente'
+            ],
+            // 'required_unless:fallecidos.*.run,null|exists:SINERGIA.GENINC.tab_paciente,rut_paciente',
             'fallecidos.*.fecha_fallecido' => 'required|date',
 
             // traslados
             'traslados.*.run' => 'required',
-            'traslados.*.v_run' => 'required_unless:traslados.*.run,null|exists:SINERGIA.GENINC.tab_paciente,rut_paciente',
+            'traslados.*.v_run' => [
+                'required_if:editable,true',
+                'nullable',
+                'exists:SINERGIA.GENINC.tab_paciente,rut_paciente'
+            ],
+            // 'required_unless:traslados.*.run,null|exists:SINERGIA.GENINC.tab_paciente,rut_paciente',
             'traslados.*.detalle.cod_unidad_origen' => 'required',
             'traslados.*.detalle.pieza_origen' => 'required',
             'traslados.*.detalle.cama_origen' => 'required',
@@ -45,7 +60,12 @@ class CrearCambioTurnoRequest extends FormRequest
 
             // cirugias
             'cirugias.*.run' => 'required',
-            'cirugias.*.v_run' => 'required_unless:cirugias.*.run,null|exists:SINERGIA.GENINC.tab_paciente,rut_paciente',
+            'cirugias.*.v_run' => [
+                'required_if:editable,true',
+                'nullable',
+                'exists:SINERGIA.GENINC.tab_paciente,rut_paciente'
+            ],
+            // 'required_unless:cirugias.*.run,null|exists:SINERGIA.GENINC.tab_paciente,rut_paciente',
             'cirugias.*.intervencion' => 'required',
             'cirugias.*.fecha_inicio' => 'required|date|different:cirugias.*.fecha_fin|before:cirugias.*.fecha_fin',
             'cirugias.*.fecha_fin' => 'required|date|different:cirugias.*.fecha_inicio|after:cirugias.*.fecha_inicio',
@@ -61,8 +81,12 @@ class CrearCambioTurnoRequest extends FormRequest
 
     public function messages()
     {
+        $mensaje = 'El run ingresado no existe en nuestros registros.';
         return [
-            'entregados.*.v_run.exists' => 'El run ingresado no existe en nuestros registros.'
+            'entregados.*.v_run.exists' => $mensaje,
+            'fallecidos.*.v_run.exists' => $mensaje,
+            'traslados.*.v_run.exists' => $mensaje,
+            'cirugias.*.v_run.exists' => $mensaje
         ];
     }
 }

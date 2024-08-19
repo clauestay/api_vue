@@ -72,7 +72,7 @@ const buscarTrasladoPacienteRut = async (rut, index) => {
     if (validate(rut)) {
         rut = props.limpiarRut(rut);
         try {
-            const response = await axios.get(`/buscarTrasladoPacienteRut/${rut}`);
+            const response = await axios.get(`/obtenerInfoPaciente/${rut}`);
             console.log({response});
             let data = response.data;
             props.form.traslados[index].nombre = data.info_traslados.nombre_completo;

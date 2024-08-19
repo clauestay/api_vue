@@ -5,7 +5,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Banner from '@/components/Banner.vue';
 import EntregaTurnoForm from '@/views/EntregaTurno/Form.vue';
 import FooterInc from '@/components/FooterInc.vue';
-import { alertaExito, alertaError, alertaErrores, alertaPregunta } from '@/helpers/AlertasSweetAlert';
 import { Head, useHead } from '@vueuse/head';
 import { useAuthStore } from "@/stores/auth";
 import { useEntregaTurnoStore } from '@/stores/entregaTurno';
@@ -16,6 +15,7 @@ const cod_prof = authStore.authUser.codigo_profesional?.cod_prof;
 const entregaTurnoStore = useEntregaTurnoStore();
 
 onMounted(() => {
+    entregaTurnoStore.resetForm();
     entregaTurnoStore.getMedicoEntrega(cod_prof);
     entregaTurnoStore.getMedicos();
 })

@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use App\Models\GenProfesional;
+// use App\Models\GenProfesional;
+use App\Models\RpEquipoStaff;
 use App\Models\Paciente;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -33,14 +34,39 @@ class RpCambioTurno extends Model
     // relaciones
     public function medicoEntrega()
     {
-        return $this->belongsTo(GenProfesional::class, 'doctor_entrega_turno', 'cod_prof')
-            ->where('vigencia', 'S');
+        return $this->belongsTo(RpEquipoStaff::class, 'doctor_entrega_turno', 'cod_prof')
+            ->where('sta_vigencia', 'S')
+            ->select('cod_prof', 'sta_descripcion');
+        // return $this->belongsTo(GenProfesional::class, 'doctor_entrega_turno', 'cod_prof')
+        //     ->where('vigencia', 'S')
+        //     ->addSelect([
+        //         'cod_prof',
+        //         'nombre1_prof',
+        //         'nombre2_prof',
+        //         'apepat_prof',
+        //         'apemat_prof',
+        //         'vigencia',
+        //         DB::raw("NVL(nombre1_prof, '') || ' ' || NVL(nombre2_prof, '') || ' ' || NVL(apepat_prof, '') || ' ' || NVL(apemat_prof, '') as nombre_completo")
+        //     ]);
     }
 
     public function medicoRecibe()
     {
-        return $this->belongsTo(GenProfesional::class, 'doctor_recibe_turno', 'cod_prof')
-            ->where('vigencia', 'S');
+        return $this->belongsTo(RpEquipoStaff::class, 'doctor_recibe_turno', 'cod_prof')
+        ->where('sta_vigencia', 'S')
+        ->select('cod_prof', 'sta_descripcion');
+        // return $this->belongsTo(GenProfesional::class, 'doctor_recibe_turno', 'cod_prof')
+        //     // ->select('cod_prof AS id', 'nombre_completo AS name')
+        //     ->where('vigencia', 'S')
+        //     ->addSelect([
+        //         'cod_prof',
+        //         'nombre1_prof',
+        //         'nombre2_prof',
+        //         'apepat_prof',
+        //         'apemat_prof',
+        //         'vigencia',
+        //         DB::raw("NVL(nombre1_prof, '') || ' ' || NVL(nombre2_prof, '') || ' ' || NVL(apepat_prof, '') || ' ' || NVL(apemat_prof, '') as nombre_completo")
+        //     ]);
     }
 
     public static function getMisTurnos($cod_prof, $search = null)

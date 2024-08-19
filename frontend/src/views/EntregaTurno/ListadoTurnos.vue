@@ -37,36 +37,36 @@ const cols =
     },
     { field: "fecha", title: "Fecha", type: "date" },
     {
-      field: "medico_entrega.nombre1_prof",
+      field: "medico_entrega.sta_descripcion",
       title: "Medico Residente",
       search: true,
       sort: false,
-      cellRenderer: (item) => {
-        return (
-          item &&
-          item.medico_entrega?.nombre1_prof +
-            " " +
-            item.medico_entrega?.apepat_prof +
-            " " +
-            item.medico_entrega?.apemat_prof
-        );
-      },
+      // cellRenderer: (item) => {
+      //   return (
+      //     item &&
+      //     item.medico_entrega?.nombre1_prof +
+      //       " " +
+      //       item.medico_entrega?.apepat_prof +
+      //       " " +
+      //       item.medico_entrega?.apemat_prof
+      //   );
+      // },
     },
     {
-      field: "medico_recibe.nombre1_prof",
+      field: "medico_recibe.sta_descripcion",
       title: "Medico Recibe",
       search: true,
       sort: false,
-      cellRenderer: (item) => {
-        return (
-          item &&
-          item.medico_recibe?.nombre1_prof +
-            " " +
-            item.medico_recibe?.apepat_prof +
-            " " +
-            item.medico_recibe?.apemat_prof
-        );
-      },
+      // cellRenderer: (item) => {
+      //   return (
+      //     item &&
+      //     item.medico_recibe?.nombre1_prof +
+      //       " " +
+      //       item.medico_recibe?.apepat_prof +
+      //       " " +
+      //       item.medico_recibe?.apemat_prof
+      //   );
+      // },
     },
     { field: "actions", title: "Acciones", filter: false, sort: false },
   ]) || [];

@@ -145,7 +145,7 @@ class EntregaTurno extends Controller
 
         $entregados->map(function ($entregado) {
             $paciente = Paciente::datosPacienteRut($entregado->rut);
-            $entregado->nombre_completo = $paciente->nombre_completo;
+            $entregado->nombre = $paciente->nombre_completo;
             $entregado->diagnostico = Paciente::traerDiagnostico($paciente->id_ambulatorio);
             return $entregado;
         });
@@ -172,7 +172,7 @@ class EntregaTurno extends Controller
 
         $traslados = $traslados->map(function ($traslado) {
             $paciente = Paciente::datosPacienteRut($traslado['rut']);
-            $traslado['nombre_completo'] = $paciente->nombre_completo;
+            $traslado['nombre'] = $paciente->nombre_completo;
             $traslado['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
             $detalle = $traslado['detalle'];
             $detalle['cod_unidad_origen'] = RpDetCtTraslados::getDescripcionUnidadPorCodigo($detalle['cod_unidad_origen']);
@@ -203,7 +203,7 @@ class EntregaTurno extends Controller
 
         $fallecidos->map(function ($fallecido) {
             $paciente = Paciente::datosPacienteRut($fallecido['rut']);
-            $fallecido['nombre_completo'] = $paciente->nombre_completo;
+            $fallecido['nombre'] = $paciente->nombre_completo;
             $fallecido['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
             return $fallecido;
         });
@@ -231,7 +231,7 @@ class EntregaTurno extends Controller
         $cirugias = RpDetCtCirugias::getCirugiasTurno($id);
         $cirugias->map(function ($cirugia) {
             $paciente = Paciente::datosPacienteRut($cirugia['rut']);
-            $cirugia['nombre_completo'] = $paciente->nombre_completo;
+            $cirugia['nombre'] = $paciente->nombre_completo;
             $cirugia['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
             return $cirugia;
         });
@@ -380,4 +380,42 @@ class EntregaTurno extends Controller
         return response()->json(['existeTurno' => $response]);
     }
 
+    public function actualizarCambioTurno(CrearCambioTurnoRequest $request): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            // actualizar turno
+            $id_turno = $request->id_turno;
+
+            // actualizar turno
+            $dataTurno = $request->only('fecha_llegada', 'fecha_salida', 'reemplazante', 'medico_entrega', 'medico_recibe', 'novedades');
+
+            RpCambioTurno::actualizarTurno($dataTurno, $id_turno);
+
+            // actualizar entregas
+            RpDetCambioTurno::actualizarEntregados($request->entregados, $id_turno);
+
+            // actualizar traslados
+            RpDetCtTraslados::actualizarTraslados($request->traslados, $id_turno);
+
+            //actualizar fallecidos
+            RpDetCtFallecidos::actualizarFallecidos($request->fallecidos, $id_turno);
+
+            // actualizar cirugias
+            RpDetCtCirugias::actualizarCirugias($request->cirugias, $id_turno);
+
+            DB::commit();
+
+            return response()->json([
+                'exito' => 'Turno actualizado con exito'
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'error' => 'Error al actualizar el turno',
+                'details' => $e->getMessage()
+            ], 400);
+        }
+    }
 }

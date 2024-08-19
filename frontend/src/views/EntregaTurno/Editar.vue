@@ -1,12 +1,11 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useRoute } from "vue-router";
+import { onMounted, computed } from 'vue';
+import { useRoute, useRouter } from "vue-router";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Banner from '@/components/Banner.vue';
 import EntregaTurnoForm from '@/views/EntregaTurno/Form.vue';
 import FooterInc from '@/components/FooterInc.vue';
 import Button from 'primevue/button';
-import { alertaExito, alertaError, alertaErrores } from '@/helpers/AlertasSweetAlert';
 import { Head, useHead } from '@vueuse/head';
 import dayjs from 'dayjs';
 import ProgressSpinner from 'primevue/progressspinner';
@@ -15,20 +14,24 @@ import { useEntregaTurnoStore } from '@/stores/entregaTurno';
 const route = useRoute();
 const id_turno = route.params.id;
 
+const router = useRouter();
+
 const entregaTurnoStore = useEntregaTurnoStore();
 
 onMounted(async() => {
+    entregaTurnoStore.resetForm();
     entregaTurnoStore.getMedicos();
     await entregaTurnoStore.obtenerTurno(id_turno);
     entregaTurnoStore.form = {
+        id_turno: id_turno,
         entregados: entregaTurnoStore.entregados,
         traslados: entregaTurnoStore.traslados,
         fallecidos: entregaTurnoStore.fallecidos,
         cirugias: entregaTurnoStore.cirugias,
         novedades: entregaTurnoStore.turno?.novedades || '',
         reemplazante: entregaTurnoStore.turno?.reemplazante || false,
-        medico_entrega: {id: entregaTurnoStore.turno?.medico_entrega.id} || '',
-        medico_recibe: {id: entregaTurnoStore.turno?.medico_entrega.id} || '',
+        medico_entrega: { id: entregaTurnoStore.turno?.medico_entrega.cod_prof, name: entregaTurnoStore.turno?.medico_entrega.sta_descripcion } || '',
+        medico_recibe: { id: entregaTurnoStore.turno?.medico_recibe.cod_prof, name: entregaTurnoStore.turno?.medico_recibe.sta_descripcion } || '',
         fecha_llegada: entregaTurnoStore.turno?.fecha_llegada || '',
         fecha_salida: entregaTurnoStore.turno?.fecha_salida || '',
     };
@@ -47,8 +50,7 @@ const unidades = computed(() => entregaTurnoStore.unidades);
 const form = computed(() => entregaTurnoStore.form);
 
 const submit = () => {
-    console.log("hacer");
-    // entregaTurnoStore.actualizarCambioTurno(router);
+    entregaTurnoStore.actualizarCambioTurno(router);
 }
 
 </script>
