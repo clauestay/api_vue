@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EntregaTurno;
@@ -21,8 +22,10 @@ Route::middleware('auth:sanctum')->group(function () {
      * Lstado rutas cambio turno.
      */
     Route::get('/medicoEntregaTurno/{cod_prof}', [EntregaTurno::class, 'medicoEntregaTurno']);
+    Route::get('/unidades', [EntregaTurno::class, 'unidades']);
     Route::get('/medicosEntregaTurno', [EntregaTurno::class, 'medicosEntregaTurno']);
     Route::get('/obtenerInfoPaciente/{rut}', [EntregaTurno::class, 'obtenerInfoPaciente']);
+    Route::get('/obtenerTrasladoPacienteRut/{rut}', [EntregaTurno::class, 'obtenerTrasladoPacienteRut']);
 
     Route::get('/listadoTurnos', [EntregaTurno::class, 'listadoTurnos']);
     Route::get('/misTurnos', [EntregaTurno::class, 'misTurnos']);
@@ -32,7 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/obtenerFallecidos/{id}', [EntregaTurno::class, 'obtenerFallecidos']);
     Route::get('/obtenerCirugias/{id}', [EntregaTurno::class, 'obtenerCirugias']);
     Route::get('/generarPdfTurno/{id}', [EntregaTurno::class, 'generarPdfTurno']);
-    Route::post('/guardarCambioTurno', [EntregaTurno::class, 'guardarCambioTurno']);
+    Route::post('/guardarCambioTurno', [EntregaTurno::class, 'guardarCambioTurno'])->middleware([HandlePrecognitiveRequests::class]);
     Route::get('/comprobarTurnoExistente', [EntregaTurno::class, 'comprobarTurnoExistente']);
     Route::post('/actualizarCambioTurno', [EntregaTurno::class, 'actualizarCambioTurno']);
 });

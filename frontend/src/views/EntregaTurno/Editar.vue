@@ -6,8 +6,7 @@ import Banner from '@/components/Banner.vue';
 import EntregaTurnoForm from '@/views/EntregaTurno/Form.vue';
 import FooterInc from '@/components/FooterInc.vue';
 import Button from 'primevue/button';
-import { Head, useHead } from '@vueuse/head';
-import dayjs from 'dayjs';
+import { useHead } from '@vueuse/head';
 import ProgressSpinner from 'primevue/progressspinner';
 import { useEntregaTurnoStore } from '@/stores/entregaTurno';
 

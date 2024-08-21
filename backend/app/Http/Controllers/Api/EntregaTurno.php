@@ -15,6 +15,9 @@ use App\Models\RpDetCtTraslados;
 use App\Models\RpDetCtFallecidos;
 use App\Models\RpDetCtCirugias;
 use App\Models\RpEquipoStaff;
+use App\Models\EnfTraslados;
+use App\Models\AdmIngresos;
+use App\Models\GenUnidad;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon as carbon;
 use Illuminate\Support\Facades\DB;
@@ -41,20 +44,61 @@ class EntregaTurno extends Controller
         ]);
     }
 
+    public function unidades() : JsonResponse
+    {
+        $unidades = GenUnidad::getListadoServiciosHospitalizado();
+
+        return response()->json([
+            'unidades' => $unidades
+        ]);
+    }
+
     public function obtenerInfoPaciente($rut): JsonResponse
     {
         $paciente = Paciente::datosPacienteRut($rut);
         $datos = null;
 
-        if ($paciente) {
-            $diagnostico = Paciente::traerDiagnostico($paciente->id_ambulatorio);
-            $datos = [
-                "nombre_completo" => $paciente->nombre_completo,
-                "diagnostico" => $diagnostico
-            ];
+        if(!$paciente) {
+            return response()->json([
+                "error" => "El run ingresado no existe en nuestros registros."
+            ], 404);
         }
 
+        $diagnostico = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+        $datos = [
+            "nombre_completo" => $paciente->nombre_completo,
+            "diagnostico" => $diagnostico
+        ];
+
         return response()->json(['info_paciente' => $datos]);
+    }
+
+    public function obtenerTrasladoPacienteRut($rut): JsonResponse
+    {
+        $paciente = Paciente::datosPacienteRut($rut);
+        $datos = null;
+        $traslados = null;
+
+        if(!$paciente) {
+            return response()->json([
+                "error" => "El run ingresado no existe en nuestros registros."
+            ], 404);
+        }
+
+        $diagnostico = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+
+        $id_ambulatorio = $paciente->id_ambulatorio;
+        $ingreso = AdmIngresos::getIdIngreso($id_ambulatorio);
+        if ($ingreso) {
+            $traslados = EnfTraslados::getTrasladosPaciente($ingreso->id_ingreso);
+        }
+        $datos = [
+            "nombre_completo" => $paciente->nombre_completo,
+            "diagnostico" => $diagnostico,
+            "detalle" => $traslados,
+        ];
+
+        return response()->json(['info_traslados' => $datos]);
     }
 
     public function listadoTurnos(Request $request): JsonResponse

@@ -48,12 +48,12 @@ const formatearRut = (rut, arreglo, index, etiqueta) => {
     const run = format(rut);
     const v_run = limpiarRut(run);
     if (!validate(run)) {
-      // props.errors[`${etiqueta}.${index}.run`] = "El run no es valido.";
+      props.form.validate(`${etiqueta}.${index}.run`);
       limpiarInputs(arreglo, index, etiqueta);
     } else {
       arreglo[index].run = run;
       arreglo[index].v_run = v_run;
-      // props.errors[`${etiqueta}.${index}.run`] = "";
+      props.form.validate(`${etiqueta}.${index}.v_run`);
     }
   } else {
     limpiarInputs(arreglo, index, etiqueta);
@@ -125,18 +125,18 @@ if (!props.updating) {
   watch(
     [
       () => props.form.fecha_llegada,
-      () => props.form.fecha_salida,
+      // () => props.form.fecha_salida,
       () => props.form.medico_entrega,
     ],
     () => {
       if (
         props.form.fecha_llegada &&
-        props.form.fecha_salida &&
+        // props.form.fecha_salida &&
         props.form.medico_entrega
       ) {
         validarTurnoExistente(
           props.form.fecha_llegada,
-          props.form.fecha_salida,
+          // props.form.fecha_salida,
           props.form.medico_entrega
         );
       }
@@ -177,9 +177,10 @@ if (!props.updating) {
               <label for="medico_entrega">Entrada</label>
               <div class="flex items-center gap-2 2xl:mr-52">
                 <Input
+                  id="fecha_llegada"
                   v-model="props.form.fecha_llegada"
-                  placeholder=""
-                  :class="{ 'border-red-400': props.errors?.fecha_llegada }"
+                  :class="{ 'border-red-400': props.form.errors?.fecha_llegada }"
+                  @change="props.form.validate('fecha_llegada')"
                   :aria-label="props.form.fecha_llegada"
                   type="datetime-local"
                   :min="minDate"
@@ -188,15 +189,16 @@ if (!props.updating) {
                   autofocus
                 />
               </div>
-              <InputError class="mt-2" :message="props.errors?.fecha_llegada?.[0]" />
+              <InputError class="mt-2" v-if="props.form.invalid('fecha_llegada')" :message="props.form.errors?.fecha_llegada" />
             </div>
-            <div class="md:w-1/2 px-3">
+            <div class="md:w-1/2 px-3 mb-6 md:mb-0">
               <label for="medico_entrega">Salida</label>
               <div class="flex items-center gap-2 2xl:mr-52">
                 <Input
+                  id="fecha_salida"
                   v-model="props.form.fecha_salida"
-                  placeholder=""
-                  :class="{ 'border-red-400': props.errors?.fecha_salida }"
+                  :class="{ 'border-red-400': props.form.errors?.fecha_salida }"
+                  :change="props.form.validate('fecha_salida')"
                   :aria-label="props.form.fecha_salida"
                   type="datetime-local"
                   :min="minDate"
@@ -205,13 +207,14 @@ if (!props.updating) {
                   autofocus
                 />
               </div>
-              <InputError class="mt-2" :message="props.errors?.fecha_salida?.[0]" />
+              <InputError class="mt-2" v-if="props.form.invalid('fecha_salida')" :message="props.form.errors?.fecha_salida" />
             </div>
           </div>
           <div class="mx-10 md:flex mb-6">
             <div class="md:w-1/2 px-3">
               <label for="medico_entrega">Médico entrega</label>
               <Select
+                id="medico_entrega"
                 :disabled="!updating"
                 v-model="props.form.medico_entrega"
                 :options="props.medicos"
@@ -237,13 +240,17 @@ if (!props.updating) {
                   </div>
                 </template>
               </Select>
-              <InputError class="mt-2" :message="props.errors?.medico_entrega?.[0]" />
+              <InputError class="mt-2" v-if="props.form.invalid('medico_entrega')" :message="props.form.errors?.medico_entrega" />
             </div>
             <div class="md:w-1/2 px-3">
               <label for="medico_recibe">Médico recibe</label>
+              <!-- :originalEvent="props.form.valid('medico_recibe')" -->
+              <!-- @update:modelValue="test($event)" -->
               <Select
+                id="medico_recibe"
                 v-model="props.form.medico_recibe"
                 :options="props.medicos"
+                :invalid="props.form.medico_recibe === null"
                 filter
                 checkmark
                 showClear
@@ -265,7 +272,7 @@ if (!props.updating) {
                   </div>
                 </template>
               </Select>
-              <InputError class="mt-2" :message="props.errors?.medico_recibe?.[0]" />
+              <InputError class="mt-2" v-if="props.form.invalid('medico_recibe')" :message="props.form.errors?.medico_recibe" />
             </div>
           </div>
         </div>
@@ -276,7 +283,6 @@ if (!props.updating) {
         :formatearRut="formatearRut"
         :limpiarRut="limpiarRut"
         :updating="props.updating"
-        :errors="props.errors"
       />
 
       <FallecidosSeccion
@@ -308,14 +314,15 @@ if (!props.updating) {
               <div>
                 <Label for="novedades" value="Ingrese Novedades del turno:" />
                 <TextArea
+                  id="novedades"
                   v-model="props.form.novedades"
-                  :class="{ 'border-red-400': props.errors?.novedades?.[0] }"
+                  :class="{'border-red-600': props.form.errors?.novedades}"
+                  @keyup="props.form.validate('novedades')"
                   placeholder="Ingrese Novedades del turno"
                   type="text"
                   class="mt-1 block w-full"
-                  autofocus
-                />
-                <InputError class="mt-2" :message="props.errors?.novedades?.[0]" />
+                  />
+                <InputError class="mt-2" v-if="props.form.invalid('novedades')" :message="props.form.errors.novedades" />
               </div>
             </div>
           </div>

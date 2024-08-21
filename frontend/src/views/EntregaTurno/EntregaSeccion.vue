@@ -7,12 +7,8 @@ import PrimaryButton from "@/components/PrimaryButton.vue";
 import IconBuscar from "@/components/icons/IconBuscar.vue";
 import IconEliminar from "@/components/icons/IconEliminar.vue";
 import { validate } from "rut.js";
-import { ref, onMounted, defineProps, defineEmits } from "vue";
-import { useAuthStore } from "@/stores/auth";
-
-const authStore = useAuthStore();
-axios.defaults.headers.common["Authorization"] =
-  "Bearer " + authStore.authToken;
+import { onMounted, defineProps, defineEmits } from "vue";
+import { alertaError } from "@/helpers/AlertasSweetAlert";
 
 const props = defineProps({
   form: {
@@ -31,10 +27,6 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: false,
-  },
-  errors: {
-    type: Object,
-    required: true,
   },
 });
 
@@ -78,21 +70,38 @@ const buscarInfoPacienteRut = async (rut, index) => {
       if (data != null) {
         props.form.entregados[index].nombre = data.nombre_completo;
         props.form.entregados[index].diagnostico = data.diagnostico;
-      } else {
-        props.errors[`entregados.${index}.run`] =
-          "El run ingresado no existe en nuestros registros.";
+        props.form.errors[`entregados.${index}.run`] = "";
       }
-    } catch (error) {
-      console.error({ error });
+      // else {
+      //   props.errors[`entregados.${index}.run`] =
+      //     "El run ingresado no existe en nuestros registros.";
+      // }
+    } catch (err) {
+      console.error({ err });
+      const responseData = err.response?.data;
+      if (responseData) {
+        if (err.response.status === 404) {
+          console.log(responseData.error);
+          props.form.errors[`entregados.${index}.run`] = [responseData.error];
+          alertaError(responseData.error);
+        } else if (responseData.error) {
+          alertaError(responseData.error);
+        } else {
+          alertaError("Se ha producido un error desconocido.");
+        }
+      } else {
+        alertaError(
+          "Se ha producido un error en la red o un error inesperado."
+        );
+      }
     }
   } else {
-    props.errors[`entregados.${index}.run`] = "El run no es valido.";
+    props.form.errors[`entregados.${index}.run`] = "El run no es valido.";
   }
 };
 
 if (props.updating) {
   onMounted(() => {
-    // Llamar a formatearRut para cada elemento de la lista
     props.form.entregados.forEach((entregado, index) => {
       props.formatearRut(
         entregado.run,
@@ -107,7 +116,6 @@ if (props.updating) {
 </script>
 
 <template>
-  {{ props.errors }}
   <div class="bg-blue-200 mt-8 p-4 overflow-hidden shadow-xl sm:rounded-lg">
     <div class="flex justify-between items-center">
       <div class="flex-1 text-center">
@@ -127,7 +135,6 @@ if (props.updating) {
         </PrimaryButton>
       </div>
     </div>
-
     <div v-if="props.form.entregados.length > 0" class="flex flex-col pt-2">
       <div
         class="grid grid-cols-6 gap-4 p-2"
@@ -171,32 +178,49 @@ if (props.updating) {
             <div v-else class="flex flex-col md:flex-row md:items-center">
               <div class="w-full md:w-3/4">
                 <Input
-                  v-model="entregado.run"
+                  :id="`entregado.${index}.run`"
+                  v-model="props.form.entregados[index].run"
                   :class="{
-                    'border-red-400': props.form?.[`entregados.${index}.run`],
+                    'border-red-400':
+                      props.form.errors?.[`entregados.${index}.run`] ||
+                      props.form.errors?.[`entregados.${index}.v_run`],
                   }"
                   placeholder="Run ej: xxxxxxxx-x"
-                  :aria-label="`props.form.entregado.${index}.run`"
+                  :aria-label="`props.form.entregados.${index}.run`"
                   @input="
                     props.formatearRut(
                       entregado.run,
                       props.form.entregados,
                       index,
                       'entregados'
-                    )
+                    );
+                    props.form
+                      .touch('entregados')
+                      .validate(`entregados.${index}.run`);
                   "
                   type="text"
                   class="mt-1 block w-full"
                   autofocus
                 />
-                <Input type="hidden" v-model="entregado.v_run" />
-                <InputError
-                  class="mt-2"
-                  :message="props.errors?.[`entregados.${index}.run`]"
+                <Input
+                  type="hidden"
+                  :id="`entregado.${index}.v_run`"
+                  v-model="props.form.entregados[index].v_run"
+                  @input="
+                    props.form
+                      .touch('entregados')
+                      .validate(`entregados.${index}.v_run`)
+                  "
                 />
                 <InputError
                   class="mt-2"
-                  :message="props.errors?.[`entregados.${index}.v_run`]"
+                  v-if="props.form.invalid(`entregados.${index}.run`)"
+                  :message="props.form.errors?.[`entregados.${index}.run`]"
+                />
+                <InputError
+                  class="mt-2"
+                  v-if="props.form.invalid(`entregados.${index}.v_run`)"
+                  :message="props.form.errors?.[`entregados.${index}.v_run`]"
                 />
               </div>
               <div class="mt-2 md:mt-0 md:w-1/4 md:ml-2">
@@ -218,10 +242,16 @@ if (props.updating) {
           </div>
           <div class="flex flex-col">
             <TextArea
-              v-model="entregado.problemas"
+              :id="`entregado.${index}.problemas`"
+              v-model="props.form.entregados[index].problemas"
+              @input="
+                props.form
+                  .touch('entregados')
+                  .validate(`entregados.${index}.problemas`)
+              "
               :class="{
                 'border-red-400':
-                  props.errors?.[`entregados.${index}.problemas`],
+                  props.form.errors?.[`entregados.${index}.problemas`],
               }"
               rows="3"
               cols="3"
@@ -231,16 +261,23 @@ if (props.updating) {
               autofocus
             />
             <InputError
+              v-if="props.form.invalid(`entregados.${index}.problemas`)"
               class="mt-2"
-              :message="props.errors?.[`entregados.${index}.problemas`]?.[0]"
+              :message="props.form.errors?.[`entregados.${index}.problemas`]"
             />
           </div>
           <div class="flex flex-col">
             <TextArea
-              v-model="entregado.examenes"
+              :id="`entregados.${index}.examenes`"
+              v-model="props.form.entregados[index].examenes"
+              @input="
+                props.form
+                  .touch('entregados')
+                  .validate(`entregados.${index}.examenes`)
+              "
               :class="{
                 'border-red-400':
-                  props.errors?.[`entregados.${index}.examenes`],
+                  props.form.errors?.[`entregados.${index}.examenes`],
               }"
               type="text"
               rows="3"
@@ -250,8 +287,9 @@ if (props.updating) {
               autofocus
             />
             <InputError
+              v-if="props.form.invalid(`entregados.${index}.examenes`)"
               class="mt-2"
-              :message="props.errors?.[`entregados.${index}.examenes`]?.[0]"
+              :message="props.form.errors?.[`entregados.${index}.examenes`]"
             />
           </div>
           <div class="flex justify-end">

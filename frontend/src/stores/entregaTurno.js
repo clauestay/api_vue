@@ -58,46 +58,57 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
                 this.loading = false;
             }
         },
-        async guardarCambioTurno(router) {
+        async getUnidades() {
             this.loading = true;
             try {
-                const response = await axios.post('/guardarCambioTurno', this.form, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                const responseData = response.data;
-
-                if (responseData.exito) {
-                    alertaExito(responseData.exito);
-                    this.resetForm();
-                    router.push('/misTurnos');
-                } else if (responseData.error) {
-                    alertaError(responseData.error);
-                }
+                const response = await axios.get("/unidades");
+                this.unidades = response.data.unidades;
             } catch (err) {
-                console.error(err);
-                const responseData = err.response?.data;
-
-                if (responseData) {
-                    if (err.response.status === 409) {
-                        alertaError(responseData.info);
-                    } else if (responseData.errors) {
-                        this.errors = responseData.errors;
-                        alertaErrores(this.errors);
-                    } else if (responseData.error) {
-                        alertaError(responseData.error);
-                    } else {
-                        alertaError("Se ha producido un error desconocido.");
-                    }
-                } else {
-                    alertaError("Se ha producido un error en la red o un error inesperado.");
-                }
+                this.manejarError(err, "Error al obtener el listado de las unidades.");
             } finally {
                 this.loading = false;
             }
         },
+        // async guardarCambioTurno(router) {
+        //     this.loading = true;
+        //     try {
+        //         const response = await axios.post('/guardarCambioTurno', this.form, {
+        //             headers: {
+        //                 'Content-Type': 'application/json'
+        //             }
+        //         });
+
+        //         const responseData = response.data;
+
+        //         if (responseData.exito) {
+        //             alertaExito(responseData.exito);
+        //             this.resetForm();
+        //             router.push('/misTurnos');
+        //         } else if (responseData.error) {
+        //             alertaError(responseData.error);
+        //         }
+        //     } catch (err) {
+        //         console.error(err);
+        //         const responseData = err.response?.data;
+
+        //         if (responseData) {
+        //             if (err.response.status === 409) {
+        //                 alertaError(responseData.info);
+        //             } else if (responseData.errors) {
+        //                 this.errors = responseData.errors;
+        //                 alertaErrores(this.errors);
+        //             } else if (responseData.error) {
+        //                 alertaError(responseData.error);
+        //             } else {
+        //                 alertaError("Se ha producido un error desconocido.");
+        //             }
+        //         } else {
+        //             alertaError("Se ha producido un error en la red o un error inesperado.");
+        //         }
+        //     } finally {
+        //         this.loading = false;
+        //     }
+        // },
         async obtenerTurno(id_turno) {
             this.loading_obtener = true;
             try {

@@ -7,9 +7,8 @@ import InputError from '@/components/InputError.vue';
 import PrimaryButton from '@/components/PrimaryButton.vue';
 import IconBuscar from '@/components/icons/IconBuscar.vue';
 import IconEliminar from '@/components/icons/IconEliminar.vue';
-import { validate, clean, format } from 'rut.js';
+import { validate } from 'rut.js';
 import { ref, onMounted, defineProps, defineEmits } from 'vue';
-import { minDate, maxDate } from '@/helpers/AyudaFechas.js';
 
 const props = defineProps({
     form: {
@@ -40,6 +39,7 @@ const agregarLineaCirugia = () => {
     props.form.cirugias.push({
         id: correlativoCirugias(),
         run: '',
+        v_run: '',
         nombre: '',
         diagnostico: '',
         intervencion: '',
@@ -70,14 +70,31 @@ const buscarInfoPacienteRut = async (rut, index) => {
             if (data != null) {
                 props.form.cirugias[index].nombre = data.nombre_completo;
                 props.form.cirugias[index].diagnostico = data.diagnostico;
-            } else {
-                props.form.errors[`cirugias.${index}.run`] = "El run ingresado no existe en nuestros registros.";
             }
-        } catch (error) {
-            console.error({ error });
+            // else {
+            //     props.form.errors[`cirugias.${index}.run`] = "El run ingresado no existe en nuestros registros.";
+            // }
+        } catch (err) {
+            console.error({ err });
+            const responseData = err.response?.data;
+            if (responseData) {
+                if (err.response.status === 404) {
+                console.log(responseData.error);
+                props.form.errors[`cirugias.${index}.run`] = [responseData.error];
+                alertaError(responseData.error);
+                } else if (responseData.error) {
+                alertaError(responseData.error);
+                } else {
+                alertaError("Se ha producido un error desconocido.");
+                }
+            } else {
+                alertaError(
+                "Se ha producido un error en la red o un error inesperado."
+                );
+            }
         }
     } else {
-        props.form.cirugias[index].error.run = "El run no es valido.";
+        props.form.errors[`cirugias.${index}.run`] = "El run no es valido.";
     }
 };
 
@@ -85,7 +102,12 @@ if (props.updating) {
     onMounted(() => {
         // Llamar a formatearRut para cada elemento de la lista
         props.form.cirugias.forEach((cirugia, index) => {
-            props.formatearRut(cirugia.run, props.form.cirugias, index, 'cirugias');
+            props.formatearRut(
+                cirugia.run,
+                props.form.cirugias,
+                index,
+                'cirugias'
+            );
             buscarInfoPacienteRut(cirugia.run, index);
         });
     });
@@ -127,13 +149,49 @@ if (props.updating) {
                         </div>
                         <div v-else class="flex flex-col md:flex-row md:items-center">
                             <div class="w-full md:w-3/4">
-                                <!-- :class="{ 'border-red-400': props.form.errors[`cirugias.${index}.run`] }" -->
-                                <Input v-model="cirugia.run" placeholder="Run ej: xxxxxxxx-x"
+                                <Input
+                                    :id="`cirugia.${index}.run`"
+                                    v-model="props.form.cirugias[index].run"
+                                    :class="{
+                                        'border-red-400':
+                                        props.form.errors?.[`cirugias.${index}.run`] ||
+                                        props.form.errors?.[`cirugias.${index}.v_run`],
+                                    }"
+                                    placeholder="Run ej: xxxxxxxx-x"
                                     :aria-label="`props.form.cirugias.${index}.run`"
-                                    @input="props.formatearRut(cirugia.run, props.form.cirugias, index, 'cirugias')" type="text"
-                                    class="mt-1 block w-full" autofocus />
-                                <InputError class="mt-2" textColorError="text-red-500" :message="cirugia.error.run" />
-                                <!-- <InputError class="mt-2" textColorError="text-red-500"                                    :message="props.form.errors[`cirugias.${index}.run`]" /> -->
+                                    @input="
+                                        props.formatearRut(
+                                            cirugia.run,
+                                            props.form.cirugias,
+                                            index,
+                                            'cirugias'
+                                        );
+                                        props.form.touch('cirugias').validate(`cirugias.${index}.run`);
+                                    "
+                                    type="text"
+                                    class="mt-1 block w-full"
+                                    autofocus
+                                />
+                                <Input
+                                    type="hidden"
+                                    :id="`cirugia.${index}.v_run`"
+                                    v-model="props.form.cirugias[index].v_run"
+                                    @input="
+                                        props.form
+                                        .touch('cirugias')
+                                        .validate(`cirugias.${index}.v_run`)
+                                    "
+                                />
+                                <InputError
+                                    class="mt-2"
+                                    v-if="props.form.invalid(`cirugias.${index}.run`)"
+                                    :message="props.form.errors?.[`cirugia.${index}.run`]"
+                                />
+                                <InputError
+                                    class="mt-2"
+                                    v-if="props.form.invalid(`cirugias.${index}.v_run`)"
+                                    :message="props.form.errors?.[`cirugias.${index}.v_run`]"
+                                />
                             </div>
                             <div class="mt-2 md:mt-0 md:w-1/4 md:ml-2">
                                 <PrimaryButton v-if="validate(cirugia.run)" class="bg-cyan-500 hover:bg-cyan-700"
@@ -151,10 +209,23 @@ if (props.updating) {
                     </div>
                     <div class="flex flex-col">
                         <div class="flex flex-col">
-                            <!-- :class="{ 'border-red-400': props.form.errors[`cirugias.${index}.intervencion`] }" -->
-                            <TextArea v-model="cirugia.intervencion" rows="3" cols="3" placeholder="Cirugía realizada"
-                                type="text" class="mt-1 block w-full" autofocus />
-                            <!-- <InputError class="mt-2" :message="props.form.errors[`cirugias.${index}.intervencion`]" /> -->
+                            <TextArea
+                                :id="`cirugia.${index}.intervencion`"
+                                v-model="props.form.cirugias[index].intervencion"
+                                @input="props.form.touch('cirugias').validate(`cirugias.${index}.intervencion`)"
+                                :class="{ 'border-red-400': props.form.errors[`cirugias.${index}.intervencion`] }"
+                                rows="3"
+                                cols="3"
+                                placeholder="Cirugía realizada"
+                                type="text"
+                                class="mt-1 block w-full"
+                                autofocus
+                            />
+                            <InputError
+                                class="mt-2"
+                                v-if="props.form.invalid(`cirugias.${index}.intervencion`)"
+                                :message="props.form.errors[`cirugias.${index}.intervencion`]"
+                            />
                         </div>
                     </div>
                     <div class="flex flex-col">
@@ -182,7 +253,7 @@ if (props.updating) {
                     <div class="flex justify-end">
                         <IconEliminar @click.prevent="quitarLineaCirugia(cirugia.id)" />
                     </div>
-                </div>
+                </div>                            {{form.errors}}
             </div>
         </div>
     </div>

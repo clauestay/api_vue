@@ -21,6 +21,7 @@
     "datatables.net-vue3": "^3.0.2",
     "dayjs": "^1.11.12",
     "jszip": "^3.10.1",
+    "laravel-precognition-vue": "^0.5.6",
     "lodash": "^4.17.21",
     "pdfmake": "^0.2.11",
     "pinia": "^2.2.1",
