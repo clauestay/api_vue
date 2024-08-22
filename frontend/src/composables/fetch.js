@@ -17,8 +17,6 @@ export function useFetch(url) {
 
     try {
       const response = await axios.get(toValue(url));
-      // data.value = response.data.turnos.data;
-      // data.value = response.data;
       data.value = response;
     } catch (err) {
       error.value = err;

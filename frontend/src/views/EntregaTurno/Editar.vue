@@ -11,6 +11,7 @@ import ProgressSpinner from 'primevue/progressspinner';
 import { useForm } from 'laravel-precognition-vue';
 import { useEntregaTurnoStore } from '@/stores/entregaTurno';
 import { useEntregaTurno } from "@/composables/entregaTurno";
+import { useFetch } from "@/composables/fetch";
 import { alertaExito, alertaError, alertaErrores } from '@/helpers/AlertasSweetAlert';
 
 useHead({ title: "Editar turno" });
@@ -20,12 +21,19 @@ const id_turno = route.params.id;
 const router = useRouter();
 const entregaTurnoStore = useEntregaTurnoStore();
 
-const { medicos } = useEntregaTurno("/medicosEntregaTurno");
-const { unidades } = useEntregaTurno("/unidades");
+// const { medicos } = useEntregaTurno("/medicosEntregaTurno");
+// const { unidades } = useEntregaTurno("/unidades");
+const { data: dataMedicos, error: medicoError, fetchData: medicoFetchData } = useFetch("/medicosEntregaTurno");
+const medicos = computed(() => dataMedicos.value?.data?.medicos || []);
+
+const { data: dataUnidades, error: medicoUnidades, fetchData: unidadesFetchData } = useFetch("/unidades");
+const unidades = computed(() => dataUnidades.value?.data?.unidades || []);
 
 const loading = computed(() => entregaTurnoStore.loading_obtener);
 
 onMounted(async() => {
+    await medicoFetchData();
+    await unidadesFetchData();
     await entregaTurnoStore.obtenerTurno(id_turno);
 })
 

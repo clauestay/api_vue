@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Banner from '@/components/Banner.vue';
@@ -8,6 +8,7 @@ import FooterInc from '@/components/FooterInc.vue';
 import { Head, useHead } from '@vueuse/head';
 import { useAuthStore } from "@/stores/auth";
 import { useEntregaTurno } from "@/composables/entregaTurno";
+import { useFetch } from "@/composables/fetch";
 import { manejarError } from '@/functions';
 import { useForm } from 'laravel-precognition-vue';
 import { alertaExito, alertaError, alertaErrores } from '@/helpers/AlertasSweetAlert';
@@ -15,12 +16,20 @@ import { alertaExito, alertaError, alertaErrores } from '@/helpers/AlertasSweetA
 const authStore = useAuthStore();
 const cod_prof = authStore.authUser.codigo_profesional?.cod_prof;
 
-const { medicos } = useEntregaTurno("/medicosEntregaTurno");
-const { unidades } = useEntregaTurno("/unidades");
+const { data: dataMedicos, error: medicoError, fetchData: medicoFetchData } = useFetch("/medicosEntregaTurno");
+const medicos = computed(() => dataMedicos.value?.data?.medicos || []);
+
+const { data: dataUnidades, error: medicoUnidades, fetchData: unidadesFetchData } = useFetch("/unidades");
+const unidades = computed(() => dataUnidades.value?.data?.unidades || []);
+
+const { data: dataMedicoEntrega, error: medicoMedicoEntrega, fetchData: medicoEntregaFetchData } = useFetch(`/medicoEntregaTurno/${cod_prof}`);
+const medico_entrega = computed(() => dataMedicoEntrega.value?.data?.medico_entrega || []);
 
 onMounted(async () => {
-    await getMedicoEntrega(cod_prof);
-})
+    await medicoFetchData();
+    await unidadesFetchData();
+    await medicoEntregaFetchData();
+});
 
 useHead({
     title: 'Crear turno',
@@ -42,15 +51,9 @@ const form = useForm('post', '/guardarCambioTurno', {
     fecha_salida: '',
 });
 
-const getMedicoEntrega = async (cod_prof) => {
-    try {
-        const response = await axios.get(`/medicoEntregaTurno/${cod_prof}`);
-        form.medico_entrega = response.data.medico_entrega;
-    } catch (err) {
-        console.log(err);
-        manejarError(err, "Error al obtener el listado de los turnos.");
-    }
-}
+watch(medico_entrega, (newVal) => {
+    form.medico_entrega = newVal;
+});
 
 const submit = () => {
     form.submit().then(response => {
