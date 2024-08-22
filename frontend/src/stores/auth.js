@@ -36,7 +36,7 @@ export const useAuthStore = defineStore('auth', {
             });
         },
         async logout() {
-            await axios.post('http://localhost:80/api/logout', this.authToken);
+            await axios.post('/logout', this.authToken);
             this.authUser = null;
             this.authToken = null;
             // delete storage.token

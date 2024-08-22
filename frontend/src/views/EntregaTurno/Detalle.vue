@@ -15,8 +15,9 @@ const route = useRoute();
 
 const entregaTurnoStore = useEntregaTurnoStore();
 
+const id_turno = route.params.id;
+
 onMounted(() => {
-    const id_turno = route.params.id;
     entregaTurnoStore.obtenerTurno(id_turno);
 })
 
@@ -238,7 +239,7 @@ const generarPdf = () => {
                                                             <Label class="font-bold text-gris-dark">Desde</Label>
                                                             <div class="flex flex-row">
                                                                 <div class="flex flex-col">
-                                                                    <Label class="text-gris-dark">Unidad: {{ traslado.detalle.cod_unidad_origen }}</Label>
+                                                                    <Label class="text-gris-dark">Unidad: {{ traslado.detalle.desc_unidad_origen }}</Label>
                                                                 </div>
                                                                 <div class="flex flex-col mx-2">
                                                                     <Label class="text-gris-dark">Pieza: {{ traslado.detalle.pieza_origen }}</Label>
@@ -250,7 +251,7 @@ const generarPdf = () => {
                                                             <Label class="font-bold text-gris-dark">A</Label>
                                                             <div class="flex flex-row">
                                                                 <div class="flex flex-col">
-                                                                    <Label class="text-gris-dark">Unidad: {{ traslado.detalle.cod_unidad_destino }}</Label>
+                                                                    <Label class="text-gris-dark">Unidad: {{ traslado.detalle.desc_unidad_destino }}</Label>
                                                                 </div>
                                                                 <div class="flex flex-col mx-2">
                                                                     <Label class="text-gris-dark">Pieza: {{ traslado.detalle.pieza_destino }}</Label>
@@ -405,6 +406,7 @@ const generarPdf = () => {
                                             <div class="md:w-full px-3">
                                                 <div>
                                                     <Label class="font-bold text-gris-dark">Novedades del turno</Label>
+                                                    <Label class="text-gris-dark">{{ turno?.novedades }}</Label>
                                                 </div>
                                             </div>
                                         </div>

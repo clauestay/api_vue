@@ -118,9 +118,10 @@ const toggleDropdown = () => {
                         <!-- <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
                         </ResponsiveNavLink> -->
-                    <ResponsiveNavLink href="/inicio" active="/inicio" >
+                        <!-- active="/inicio" > -->
+                    <!-- <ResponsiveNavLink href="/inicio">
                         Dashboard
-                    </ResponsiveNavLink>
+                    </ResponsiveNavLink> -->
                     </div>
 
                     <!-- Responsive Settings Options -->

@@ -1,96 +1,149 @@
 <script setup>
-import { ref, onMounted, computed} from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Banner from "@/components/Banner.vue";
+import Button from "primevue/button";
 import FooterInc from "@/components/FooterInc.vue";
-import Vue3Datatable from "@bhplugin/vue3-datatable";
-import "@bhplugin/vue3-datatable/dist/style.css";
+import { Head, useHead } from "@vueuse/head";
 import { reactive } from "vue";
-import { useEntregaTurnoStore } from "@/stores/entregaTurno";
+import { useFetch } from "@/composables/fetch";
+import IconFile from "@/components/icons/IconFile.vue";
+import IconFileText from "@/components/icons/IconFileText.vue";
+import IconPrinter from "@/components/icons/IconPrinter.vue";
+import jszip from "jszip";
+import pdfmake from "pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfmake.vfs = pdfFonts.pdfMake.vfs;
+import DataTable from "datatables.net-vue3";
+import DataTablCore from "datatables.net-dt";
+import "datatables.net-buttons-dt";
+import "datatables.net-buttons/js/buttons.html5";
+import "datatables.net-buttons/js/buttons.print";
+import "datatables.net-responsive-dt";
+DataTable.use(DataTablCore);
+DataTablCore.Buttons.jszip(jszip);
+DataTablCore.Buttons.pdfMake(pdfmake);
+import ProgressSpinner from "primevue/progressspinner";
 
-const entregaTurnoStore = useEntregaTurnoStore();
+useHead({ title: "Listado de turnos" });
 
-onMounted(() => {
-  entregaTurnoStore.getListadoTurnos();
+const { data, error, loading, fetchData } = useFetch("/listadoTurnos");
+
+const turnos = computed(() => data.value?.data?.turnos?.data || []);
+
+onMounted(async () => {
+  await fetchData();
 });
 
-const turnos = computed(() => entregaTurnoStore.turnos);
-const loading = computed(() => entregaTurnoStore.loading);
-const total_rows = computed(() => entregaTurnoStore.total_rows);
-
-const params = reactive({
-  current_page: 1,
-  pagesize: 10,
-  search: "",
-  sort_column: "ID_CAMBIO_TURNO",
-  sort_direction: "desc",
-});
+const router = useRouter();
 
 const cols =
   ref([
     {
-      field: "id_cambio_turno",
+      data: "id_cambio_turno",
       title: "Código",
-      isUnique: true,
-      type: "number",
     },
-    { field: "fecha", title: "Fecha", type: "date" },
     {
-      field: "medico_entrega.sta_descripcion",
+      data: "fecha",
+      title: "Fecha",
+      type: "date",
+    },
+    {
+      data: "medico_entrega.sta_descripcion",
       title: "Medico Residente",
-      search: true,
-      sort: false,
-      // cellRenderer: (item) => {
+    },
+    {
+      data: "medico_recibe.sta_descripcion",
+      title: "Medico Recibe",
+      // render: (data, type, row) => {
       //   return (
-      //     item &&
-      //     item.medico_entrega?.nombre1_prof +
-      //       " " +
-      //       item.medico_entrega?.apepat_prof +
-      //       " " +
-      //       item.medico_entrega?.apemat_prof
+      //     row.medico_recibe.nombre1_prof +
+      //     " " +
+      //     row.medico_recibe.apepat_prof +
+      //     " " +
+      //     row.medico_recibe.apemat_prof
       //   );
       // },
     },
     {
-      field: "medico_recibe.sta_descripcion",
-      title: "Medico Recibe",
-      search: true,
-      sort: false,
-      // cellRenderer: (item) => {
-      //   return (
-      //     item &&
-      //     item.medico_recibe?.nombre1_prof +
-      //       " " +
-      //       item.medico_recibe?.apepat_prof +
-      //       " " +
-      //       item.medico_recibe?.apemat_prof
-      //   );
-      // },
+      data: null,
+      title: "Acciones",
+      render: "#action",
     },
-    { field: "actions", title: "Acciones", filter: false, sort: false },
   ]) || [];
 
-const changeServer = (data) => {
-  params.current_page = data.current_page;
-  params.pagesize = data.pagesize;
-  params.sort_column = data.sort_column;
-  params.sort_direction = data.sort_direction;
-  params.search = data.search;
-
-  entregaTurnoStore.getListadoTurnos();
-};
-
-const router = useRouter();
+const options = ref({
+  dom: '<"custom-datatable-header"lBf>rt<"custom-datatable-footer"ip>',
+  responsive: true,
+  order: [[0, "desc"]],
+  autowidth: false,
+  language: {
+    search: "Buscar:",
+    lengthMenu: "Mostrar _MENU_ registros",
+    zeroRecords: "No se encontraron resultados",
+    info: "Mostrando página _START_ de _END_ de _TOTAL_ registros",
+    infoFiltered: "(filtrado de _MAX_ total de registros)",
+  },
+  buttons: [
+    {
+      extend: "excel",
+      text: "Excel",
+      className: "green",
+      exportOptions: {
+        columns: [0, 1, 2, 3],
+      },
+    },
+    {
+      extend: "csv",
+      text: "Csv",
+      exportOptions: {
+        columns: [0, 1, 2, 3],
+      },
+    },
+    {
+      extend: "pdf",
+      text: "Pdf",
+      exportOptions: {
+        columns: [0, 1, 2, 3],
+      },
+    },
+    {
+      extend: "print",
+      text: "Vista impresión",
+      exportOptions: {
+        columns: [0, 1, 2, 3],
+      },
+    },
+  ],
+});
 
 const detalle_turno = (id_turno) => {
   router.push({ name: "Detalle-turno", params: { id: id_turno } });
 };
-
 </script>
+
+<style>
+@import "datatables.net-dt";
+@import "datatables.net-buttons-dt";
+@import "datatables.net-responsive-dt";
+
+.custom-datatable-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-datatable-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+</style>
 
 <template>
   <AuthenticatedLayout>
+    <Head />
     <Banner
       class="pt-4"
       imagenUrl="/imagenes/banner-nuevo.png"
@@ -114,164 +167,33 @@ const detalle_turno = (id_turno) => {
               <div class="flex flex-col">
                 <div>
                   <div class="text-center pb-2">
-                  </div>
-                  <div class="min-w-full border-b shadow overflow-x-auto">
-                    <div class="mb-5">
-                      <input
-                        v-model="params.search"
-                        type="text"
-                        placeholder="Buscar..."
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-60 p-2.5"
-                      />
-                    </div>
-                    <div class="row">
-                      <div class="datatable-responsive">
-                        <vue3-datatable
-                          :rows="turnos"
-                          :columns="cols"
-                          :loading="loading"
-                          :totalRows="total_rows"
-                          :isServerMode="true"
-                          :pageSize="params.pagesize"
-                          :search="params.search"
-                          :sortable="true"
-                          :sortColumn="params.sort_column"
-                          :sortDirection="params.sort_direction"
-                          class="advanced-table whitespace-nowrap"
-                          paginationInfo="Mostrando {0} de {1} de {2}"
-                          noDataComponent="No se encontraron resultados."
-                          @change="changeServer"
-                        >
-                        <template #id="data">
-                          <strong>#{{ data.value.id_cambio_turno }}</strong>
-                        </template>
-                          <template #actions="data">
-                            <div class="flex gap-4">
-                              <div
-                                class="inline-flex gap-2"
-                                @click="detalle_turno(data.value.id_cambio_turno)"
-                              >
-                                <IconIr title="Ver" />
-                              </div>
-                            </div>
-                          </template>
-                        </vue3-datatable>
-                      </div>
-                    </div>
-                    <!-- <table
-                      class="w-full whitespace-nowrap rounded-lg overflow-hidden shadow-lg"
+                    <Label class="text-2xl text-gris-dark"
+                      >Listado de Turnos</Label
                     >
-                      <thead class="bg-[#DCE3FF]">
-                        <tr>
-                          <th
-                            class="py-2 px-4 border-b border-grey-light text-left"
+                  </div>
+                  <div v-if="loading" class="flex justify-center items-center">
+                    <ProgressSpinner />
+                  </div>
+                  <div v-else>
+                    <DataTable
+                      :columns="cols"
+                      :data="turnos"
+                      :options="options"
+                      class="display nowrap"
+                    >
+                      <template #action="data">
+                        <div class="flex gap-4">
+                          <div
+                            class="inline-flex gap-2"
+                            @click="
+                              detalle_turno(data.cellData.id_cambio_turno)
+                            "
                           >
-                            <Label class="font-bold text-gris-dark"
-                              >Código</Label
-                            >
-                          </th>
-                          <th
-                            class="py-2 px-4 border-b border-grey-light text-left"
-                          >
-                            <Label class="font-bold text-gris-dark"
-                              >Fecha</Label
-                            >
-                          </th>
-                          <th
-                            class="py-2 px-4 border-b border-grey-light text-left"
-                          >
-                            <Label class="font-bold text-gris-dark"
-                              >Médico Residente</Label
-                            >
-                          </th>
-                          <th
-                            class="py-2 px-4 border-b border-grey-light text-left"
-                          >
-                            <Label class="font-bold text-gris-dark"
-                              >Médico Recibe</Label
-                            >
-                          </th>
-                          <th
-                            class="py-2 px-4 border-b border-grey-light text-left"
-                          >
-                            <Label class="font-bold text-gris-dark"
-                              >Acciones</Label
-                            >
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr
-                          v-for="turno in turnos.data"
-                          :key="turno.id_cambio_turno"
-                        >
-                          <td
-                            class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]"
-                          >
-                            <div class="px-2">
-                              <Label class="text-gris-dark">{{
-                                turno.id_cambio_turno
-                              }}</Label>
-                            </div>
-                          </td>
-                          <td
-                            class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]"
-                          >
-                            <div class="px-2">
-                              <span class="text-gris-dark">
-                                <strong class="mr-1">Entrada:</strong>
-                                {{ turno.fecha_llegada }} -
-                                <strong class="ml-1 mr-1">Salida:</strong>
-                                {{ turno.fecha_salida }}
-                              </span>
-                            </div>
-                          </td>
-                          <td
-                            class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]"
-                          >
-                            <div class="px-2">
-                              <Label class="text-gris-dark">
-                                {{ turno.medico_entrega?.nombre1_prof }}
-                                {{ turno.medico_entrega?.apepat_prof }}
-                                {{ turno.medico_entrega?.apemat_prof }}
-                              </Label>
-                            </div>
-                          </td>
-                          <td
-                            class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]"
-                          >
-                            <div class="px-2">
-                              <Label class="text-gris-dark">
-                                {{ turno.medico_recibe?.nombre1_prof }}
-                                {{ turno.medico_recibe?.apepat_prof }}
-                                {{ turno.medico_recibe?.apemat_prof }}
-                              </Label>
-                            </div>
-                          </td>
-                          <td
-                            class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]"
-                          >
-                            <div class="inline-flex gap-2">
-                              <router-link
-                                :to="{
-                                  path: 'editar/' + turno.id_cambio_turno,
-                                }"
-                              >
-                                <IconIr title="Ver" />
-                              </router-link>
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table> -->
-                    <!-- <div v-if="!props.turnos.data" class="w-full">
-                                            <div class="px-2 border-y">
-                                                <div class="px-4 flex justify-center items-center text-center">
-                                                    No se encontraron turnos entregados.
-                                                </div>
-                                            </div>
-                                        </div> -->
-                    <!-- <Pagination v-if="props.turnos.data" class="mt-6" :data="props.turnos" /> -->
+                            <IconIr title="Ver" />
+                          </div>
+                        </div>
+                      </template>
+                    </DataTable>
                   </div>
                 </div>
               </div>

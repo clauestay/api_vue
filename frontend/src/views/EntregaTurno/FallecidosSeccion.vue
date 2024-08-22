@@ -70,10 +70,6 @@ const buscarInfoPacienteFallecido = async (rut, index) => {
         props.form.fallecidos[index].diagnostico = data.diagnostico;
         props.form.errors[`fallecidos.${index}.run`] = "";
       }
-      //   else {
-      //     props.errors[`fallecidos.${index}.run`] =
-      //       "El run ingresado no existe en nuestros registros.";
-      //   }
     } catch (err) {
       console.error({ err });
       const responseData = err.response?.data;

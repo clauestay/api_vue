@@ -105,12 +105,13 @@ class RpCambioTurno extends Model
     }
 
     // funciones
-    public static function getAllTurnos($search = null, $sortColumn, $sortDirection, $pagesize)
+    public static function getAllTurnos($search = null )
     {
         $query = self::select('ID_CAMBIO_TURNO', 'FECHA_LLEGADA', 'FECHA', 'FECHA_SALIDA', 'DOCTOR_ENTREGA_TURNO', 'DOCTOR_RECIBE_TURNO')
             ->where('ESTADO', 1)
             ->with(['medicoEntrega', 'medicoRecibe'])
-            ->orderBy($sortColumn, $sortDirection);
+            ->orderBy('ID_CAMBIO_TURNO', 'DESC');
+            // ->orderBy($sortColumn, $sortDirection);
 
         if ($search) {
             $search = strtolower($search);
@@ -136,7 +137,7 @@ class RpCambioTurno extends Model
             });
         }
 
-        return $query->paginate($pagesize)->onEachSide(2);
+        return $query->paginate()->onEachSide(2);
     }
 
     public static function getAllTurnosDoctor($cod_prof)

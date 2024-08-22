@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { alertaError, alertaExito, alertaErrores } from '@/helpers/AlertasSweetAlert';
+import { alertaError, alertaExito } from '@/helpers/AlertasSweetAlert';
 import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
@@ -14,7 +14,6 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
         fallecidos: [],
         cirugias: [],
         error: null,
-        errors: null,
         loading: false,
         loading_obtener: false,
         total_rows: 0,
@@ -36,79 +35,6 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
         unidades: {}
     }),
     actions: {
-        async getMedicoEntrega(cod_prof){
-            this.loading = true;
-            try {
-                const response = await axios.get(`/medicoEntregaTurno/${cod_prof}`);
-                this.form.medico_entrega = response.data.medico_entrega;
-            } catch (err) {
-                this.manejarError(err, "Error al obtener el listado de los turnos.");
-            } finally {
-                this.loading = false;
-            }
-        },
-        async getMedicos() {
-            this.loading = true;
-            try {
-                const response = await axios.get("/medicosEntregaTurno");
-                this.medicos = response.data.medicos;
-            } catch (err) {
-                this.manejarError(err, "Error al obtener el listado de los turnos.");
-            } finally {
-                this.loading = false;
-            }
-        },
-        async getUnidades() {
-            this.loading = true;
-            try {
-                const response = await axios.get("/unidades");
-                this.unidades = response.data.unidades;
-            } catch (err) {
-                this.manejarError(err, "Error al obtener el listado de las unidades.");
-            } finally {
-                this.loading = false;
-            }
-        },
-        // async guardarCambioTurno(router) {
-        //     this.loading = true;
-        //     try {
-        //         const response = await axios.post('/guardarCambioTurno', this.form, {
-        //             headers: {
-        //                 'Content-Type': 'application/json'
-        //             }
-        //         });
-
-        //         const responseData = response.data;
-
-        //         if (responseData.exito) {
-        //             alertaExito(responseData.exito);
-        //             this.resetForm();
-        //             router.push('/misTurnos');
-        //         } else if (responseData.error) {
-        //             alertaError(responseData.error);
-        //         }
-        //     } catch (err) {
-        //         console.error(err);
-        //         const responseData = err.response?.data;
-
-        //         if (responseData) {
-        //             if (err.response.status === 409) {
-        //                 alertaError(responseData.info);
-        //             } else if (responseData.errors) {
-        //                 this.errors = responseData.errors;
-        //                 alertaErrores(this.errors);
-        //             } else if (responseData.error) {
-        //                 alertaError(responseData.error);
-        //             } else {
-        //                 alertaError("Se ha producido un error desconocido.");
-        //             }
-        //         } else {
-        //             alertaError("Se ha producido un error en la red o un error inesperado.");
-        //         }
-        //     } finally {
-        //         this.loading = false;
-        //     }
-        // },
         async obtenerTurno(id_turno) {
             this.loading_obtener = true;
             try {
@@ -125,67 +51,10 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
                 this.loading_obtener = false;
             }
         },
-        async actualizarCambioTurno(router) {
-            this.loading = true;
-            try {
-                const response = await axios.post('/actualizarCambioTurno', this.form, {
-                    headers: {
-                        'Content-type': 'application/json',
-                    }
-                });
-
-                const responseData = response.data;
-
-                if (responseData.exito) {
-                    alertaExito(responseData.exito);
-                    this.resetForm();
-                    router.push('/misTurnos');
-                } else if (responseData.error) {
-                    alertaError(responseData.error);
-                }
-            } catch (err) {
-                // this.manejarError(err, "Error al actualizar el turno.");
-                console.error(err);
-                const responseData = err.response?.data;
-
-                if (responseData) {
-                    if (err.response.status === 409) {
-                        alertaError(responseData.info);
-                    } else if (responseData.errors) {
-                        this.errors = responseData.errors;
-                        alertaErrores(this.errors);
-                    } else if (responseData.error) {
-                        alertaError(responseData.error);
-                    } else {
-                        alertaError("Se ha producido un error desconocido.");
-                    }
-                } else {
-                    alertaError("Se ha producido un error en la red o un error inesperado.");
-                }
-            } finally {
-                this.loading = false;
-            }
-        },
-        resetForm() {
-            this.form = {
-                entregados: [],
-                traslados: [],
-                fallecidos: [],
-                cirugias: [],
-                novedades: '',
-                reemplazante: false,
-                medico_entrega: '',
-                medico_recibe: '',
-                fecha_llegada: '',
-                fecha_salida: '',
-            };
-            this.errors = {};
-        },
         async getMisTurnos() {
             this.loading = true;
             try {
                 const response = await axios.get("/misTurnos");
-                console.log(response.data);
                 this.turnos = response.data.turnos;
             } catch (err) {
                 this.manejarError(err, "Error al obtener el listado de los turnos.");
@@ -199,7 +68,7 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
                 const response = await axios.get("/listadoTurnos", {
                     params: { ...params }
                 });
-
+                console.log(response);
                 this.turnos = response.data.turnos.data;
                 this.total_rows = response.data.turnos.total;
             } catch (err) {
@@ -243,6 +112,7 @@ export const useEntregaTurnoStore = defineStore('entregaTurno', {
             try {
                 const response = await axios.get(`/obtenerEntregados/${id_turno}`);
                 this.entregados = response.data.entregados;
+                console.log(this.entregados);
             } catch (err) {
                 this.manejarError(err, "Error al obtener el listado de los pacientes entregados.");
             }

@@ -23,7 +23,7 @@ const props = defineProps({
     required: true,
   },
   unidades: {
-    type: Array,
+    type: Object,
     required: true,
   },
   updating: {
@@ -74,7 +74,6 @@ const buscarTrasladoPacienteRut = async (rut, index) => {
     rut = props.limpiarRut(rut);
     try {
       const response = await axios.get(`/obtenerTrasladoPacienteRut/${rut}`);
-      console.log({ response });
       let data = response.data.info_traslados;
       if (data != null) {
         props.form.traslados[index].nombre = data.nombre_completo;

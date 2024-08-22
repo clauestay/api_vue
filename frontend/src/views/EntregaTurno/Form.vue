@@ -32,11 +32,7 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: false,
-  },
-  errors: {
-    type: Object,
-    required: true,
-  },
+  }
 });
 
 // comunicacion ascendente
@@ -217,6 +213,7 @@ if (!props.updating) {
                 id="medico_entrega"
                 :disabled="!updating"
                 v-model="props.form.medico_entrega"
+                @change="props.form.validate('medico_entrega')"
                 :options="props.medicos"
                 filter
                 checkmark
@@ -244,12 +241,11 @@ if (!props.updating) {
             </div>
             <div class="md:w-1/2 px-3">
               <label for="medico_recibe">Médico recibe</label>
-              <!-- :originalEvent="props.form.valid('medico_recibe')" -->
-              <!-- @update:modelValue="test($event)" -->
               <Select
                 id="medico_recibe"
                 v-model="props.form.medico_recibe"
                 :options="props.medicos"
+                @change="props.form.validate('medico_recibe')"
                 :invalid="props.form.medico_recibe === null"
                 filter
                 checkmark

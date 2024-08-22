@@ -7,21 +7,19 @@ import EntregaTurnoForm from '@/views/EntregaTurno/Form.vue';
 import FooterInc from '@/components/FooterInc.vue';
 import { Head, useHead } from '@vueuse/head';
 import { useAuthStore } from "@/stores/auth";
-import { useEntregaTurnoStore } from '@/stores/entregaTurno';
+import { useEntregaTurno } from "@/composables/entregaTurno";
+import { manejarError } from '@/functions';
 import { useForm } from 'laravel-precognition-vue';
 import { alertaExito, alertaError, alertaErrores } from '@/helpers/AlertasSweetAlert';
 
 const authStore = useAuthStore();
 const cod_prof = authStore.authUser.codigo_profesional?.cod_prof;
 
-const entregaTurnoStore = useEntregaTurnoStore();
+const { medicos } = useEntregaTurno("/medicosEntregaTurno");
+const { unidades } = useEntregaTurno("/unidades");
 
-onMounted(() => {
-    entregaTurnoStore.resetForm();
-    getMedicoEntrega(cod_prof);
-    // entregaTurnoStore.getMedicoEntrega(cod_prof);
-    entregaTurnoStore.getMedicos();
-    entregaTurnoStore.getUnidades();
+onMounted(async () => {
+    await getMedicoEntrega(cod_prof);
 })
 
 useHead({
@@ -29,11 +27,6 @@ useHead({
 });
 
 const router = useRouter();
-
-// const errors = computed(() => entregaTurnoStore.errors);
-// const form = computed(() => entregaTurnoStore.form);
-const medicos = computed(() => entregaTurnoStore.medicos);
-const unidades = computed(() => entregaTurnoStore.unidades);
 
 const form = useForm('post', '/guardarCambioTurno', {
     id_turno: '',
@@ -55,7 +48,7 @@ const getMedicoEntrega = async (cod_prof) => {
         form.medico_entrega = response.data.medico_entrega;
     } catch (err) {
         console.log(err);
-        entregaTurnoStore.manejarError(err, "Error al obtener el listado de los turnos.");
+        manejarError(err, "Error al obtener el listado de los turnos.");
     }
 }
 
@@ -66,7 +59,7 @@ const submit = () => {
 
         if (responseData.exito) {
             alertaExito(responseData.exito);
-            this.resetForm();
+            form.reset();
             router.push('/misTurnos');
         } else if (responseData.error) {
             alertaError(responseData.error);

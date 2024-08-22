@@ -8,7 +8,8 @@ import PrimaryButton from '@/components/PrimaryButton.vue';
 import IconBuscar from '@/components/icons/IconBuscar.vue';
 import IconEliminar from '@/components/icons/IconEliminar.vue';
 import { validate } from 'rut.js';
-import { ref, onMounted, defineProps, defineEmits } from 'vue';
+import { onMounted, defineProps, defineEmits } from 'vue';
+import { alertaError } from "@/helpers/AlertasSweetAlert";
 
 const props = defineProps({
     form: {
@@ -71,9 +72,6 @@ const buscarInfoPacienteRut = async (rut, index) => {
                 props.form.cirugias[index].nombre = data.nombre_completo;
                 props.form.cirugias[index].diagnostico = data.diagnostico;
             }
-            // else {
-            //     props.form.errors[`cirugias.${index}.run`] = "El run ingresado no existe en nuestros registros.";
-            // }
         } catch (err) {
             console.error({ err });
             const responseData = err.response?.data;
@@ -185,7 +183,7 @@ if (props.updating) {
                                 <InputError
                                     class="mt-2"
                                     v-if="props.form.invalid(`cirugias.${index}.run`)"
-                                    :message="props.form.errors?.[`cirugia.${index}.run`]"
+                                    :message="props.form.errors?.[`cirugias.${index}.run`]"
                                 />
                                 <InputError
                                     class="mt-2"
@@ -232,28 +230,40 @@ if (props.updating) {
                         <div class="flex flex-row">
                             <label for="fecha_inicio">Inicio:</label>
                             <div class="flex flex-col">
-                                <!-- :class="{ 'border-red-400': props.form.errors[`cirugias.${index}.fecha_inicio`] }" -->
-                                <Input v-model="cirugia.fecha_inicio"
+                                <Input
+                                    :id="`cirugia.${index}.fecha_inicio`"
+                                    v-model="props.form.cirugias[index].fecha_inicio"
+                                    @input="props.form.touch('cirugias').validate(`cirugias.${index}.fecha_inicio`)"
+                                    :class="{ 'border-red-400': props.form.errors[`cirugias.${index}.fecha_inicio`] }"
                                     :aria-label="`props.form.cirugias.${index}.fecha_inicio`"
                                     type="datetime-local" class="mt-1 block w-full" autofocus />
-                                <!-- <InputError class="mt-2" :message="props.form.errors[`cirugias.${index}.fecha_inicio`]" /> -->
+                                <InputError
+                                    class="mt-2"
+                                    v-if="props.form.invalid(`cirugias.${index}.fecha_inicio`)"
+                                    :message="props.form.errors[`cirugias.${index}.fecha_inicio`]" />
                             </div>
                         </div>
                         <div class="flex flex-row">
                             <label for="fecha_fin" class="px-2">Fin:</label>
                             <div class="flex flex-col">
-                                <!-- :class="{ 'border-red-400': props.form.errors[`cirugias.${index}.fecha_fin`] }" -->
-                                <Input v-model="cirugia.fecha_fin"
+                                <Input
+                                    :id="`cirugia.${index}.fecha_fin`"
+                                    v-model="props.form.cirugias[index].fecha_fin"
+                                    @input="props.form.touch('cirugias').validate(`cirugias.${index}.fecha_fin`)"
+                                    :class="{ 'border-red-400': props.form.errors[`cirugias.${index}.fecha_fin`] }"
                                     :aria-label="`props.form.cirugias.${index}.fecha_fin`"
                                     type="datetime-local" class="mt-1 block w-full" autofocus />
-                                <!-- <InputError class="mt-2" :message="props.form.errors[`cirugias.${index}.fecha_fin`]" /> -->
+                                <InputError
+                                    class="mt-2"
+                                    v-if="props.form.invalid(`cirugias.${index}.fecha_fin`)"
+                                    :message="props.form.errors[`cirugias.${index}.fecha_fin`]" />
                             </div>
                         </div>
                     </div>
                     <div class="flex justify-end">
                         <IconEliminar @click.prevent="quitarLineaCirugia(cirugia.id)" />
                     </div>
-                </div>                            {{form.errors}}
+                </div>
             </div>
         </div>
     </div>

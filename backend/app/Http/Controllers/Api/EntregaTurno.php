@@ -104,11 +104,7 @@ class EntregaTurno extends Controller
     public function listadoTurnos(Request $request): JsonResponse
     {
         $search = $request->input('search', null);
-        $sortColumn = $request->input('sort_column', 'ID_CAMBIO_TURNO');
-        $sortDirection = $request->input('sort_direction', 'desc');
-        $pageSize = $request->input('pagesize', 10);
-
-        $turnos = RpCambioTurno::getAllTurnos($search, $sortColumn, $sortDirection, $pageSize);
+        $turnos = RpCambioTurno::getAllTurnos($search);
 
         $turnos->transform(function ($turno) {
             $turno->FECHA_LLEGADA = Carbon::parse($turno->FECHA_LLEGADA)->format('d-m-Y H:i');
@@ -132,8 +128,8 @@ class EntregaTurno extends Controller
         if($usuario && $usuario->codigoProfesional?->cod_prof) {
             $cod_prof = $usuario->codigoProfesional->cod_prof;
             $search = $request->input('search', null);
-            $pageSize = $request->input('pagesize', 10);
-            $misTurnos = RpCambioTurno::getMisTurnos($cod_prof, $search, $pageSize);
+            // $pageSize = $request->input('pagesize', 10);
+            $misTurnos = RpCambioTurno::getMisTurnos($cod_prof, $search);
             $misTurnos->transform(function ($turno) {
                 // formato de fecha
                 $turno->fecha_llegada = Carbon::parse($turno->fecha_llegada)->format('d-m-Y H:i');
@@ -219,8 +215,8 @@ class EntregaTurno extends Controller
             $traslado['nombre'] = $paciente->nombre_completo;
             $traslado['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
             $detalle = $traslado['detalle'];
-            $detalle['cod_unidad_origen'] = RpDetCtTraslados::getDescripcionUnidadPorCodigo($detalle['cod_unidad_origen']);
-            $detalle['cod_unidad_destino'] = RpDetCtTraslados::getDescripcionUnidadPorCodigo($detalle['cod_unidad_destino']);
+            $detalle['desc_unidad_origen'] = RpDetCtTraslados::getDescripcionUnidadPorCodigo($detalle['cod_unidad_origen']);
+            $detalle['desc_unidad_destino'] = RpDetCtTraslados::getDescripcionUnidadPorCodigo($detalle['cod_unidad_destino']);
             $traslado['detalle'] = $detalle;
             return $traslado;
         });

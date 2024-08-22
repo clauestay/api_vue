@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Banner from "@/components/Banner.vue";
@@ -9,7 +9,7 @@ import IconEdit from "@/components/icons/IconEdit.vue";
 import IconEliminar from "@/components/icons/IconEliminar.vue";
 import Label from "@/components/InputLabel.vue";
 import { Head, useHead } from "@vueuse/head";
-import { useEntregaTurnoStore } from "@/stores/entregaTurno";
+import { useFetch } from "@/composables/fetch";
 import jszip from "jszip";
 import pdfmake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -23,16 +23,17 @@ import "datatables.net-responsive-dt";
 DataTable.use(DataTablCore);
 DataTablCore.Buttons.jszip(jszip);
 DataTablCore.Buttons.pdfMake(pdfmake);
-
-const entregaTurnoStore = useEntregaTurnoStore();
-
-onMounted(() => {
-  entregaTurnoStore.getMisTurnos();
-});
-
-const turnos = computed(() => entregaTurnoStore.turnos);
+import ProgressSpinner from 'primevue/progressspinner';
 
 useHead({ title: "Mis turnos" });
+
+const { data, error, loading, fetchData /*, borrarRegistro*/ } = useFetch("/misTurnos");
+
+const turnos = computed(() => data.value?.data?.turnos?.data || []);
+
+onMounted(async () => {
+  await fetchData();
+});
 
 const router = useRouter();
 
@@ -117,12 +118,10 @@ const options = ref({
 });
 
 const detalle_turno = (id_turno) => {
-  router.push({ name: 'Detalle-turno', params: { id: id_turno } });
+  router.push({ name: "Detalle-turno", params: { id: id_turno } });
 };
 
 const editar_turno = (id_turno) => {
-  console.log(id_turno);
-  // router.push({ name: 'Editar', params: { id: id_turno } });
   router.push(`/editar/${id_turno}`);
 };
 
@@ -146,6 +145,11 @@ const permitirEditarTurno = (fecha) => {
 
   return diferenciaHoras <= 48;
 };
+
+// const borrar_turno = async (id) => {
+//   const url = `/entregaTurno/borrarTurno/${id}`;
+//   await borrarRegistro(url);
+// };
 </script>
 
 <style>
@@ -194,37 +198,48 @@ const permitirEditarTurno = (fecha) => {
                   <div class="text-center pb-2">
                     <Label class="text-2xl text-gris-dark">Mis Turnos</Label>
                   </div>
-                  <DataTable
-                    :columns="cols"
-                    :data="turnos.data"
-                    :options="options"
-                    class="display nowrap"
-                  >
-                    <template #action="data">
-                      <div class="flex gap-4">
-                        <div
-                          class="inline-flex gap-2"
-                          @click="detalle_turno(data.cellData.id_cambio_turno)"
-                        >
-                          <IconIr title="Ver" />
+                  <div v-if="loading" class="flex justify-center items-center">
+                    <ProgressSpinner />
+                  </div>
+                  <div v-else>
+                    <DataTable
+                      :columns="cols"
+                      :data="turnos"
+                      :options="options"
+                      class="display nowrap"
+                    >
+                      <template #action="data">
+                        <div class="flex gap-4">
+                          <div
+                            class="inline-flex gap-2"
+                            @click="
+                              detalle_turno(data.cellData.id_cambio_turno)
+                            "
+                          >
+                            <IconIr title="Ver" />
+                          </div>
+                          <!-- v-if="permitirEditarTurno(data.cellData.fecha)" -->
+                          <div
+                            class="inline-flex gap-2 bg-yellow-400"
+                            @click="editar_turno(data.cellData.id_cambio_turno)"
+                          >
+                            <IconEdit title="Editar" />
+                          </div>
+                          <!-- <div
+                            v-if="permitirEditarTurno(data.cellData.fecha)"
+                            class="inline-flex gap-2"
+                            @click="
+                              borrar_turno(
+                                data.cellData.id_cambio_turno
+                              )
+                            "
+                          >
+                            <IconEliminar title="Eliminar" />
+                          </div> -->
                         </div>
-                        <!-- v-if="permitirEditarTurno(data.cellData.fecha)" -->
-                        <div
-                          class="inline-flex gap-2 bg-yellow-400"
-                          @click="editar_turno(data.cellData.id_cambio_turno)"
-                        >
-                          <IconEdit title="Editar" />
-                        </div>
-                        <div
-                          v-if="permitirEditarTurno(data.cellData.fecha)"
-                          class="inline-flex gap-2"
-                          @click="entregaTurnoStore.borrar_turno(data.cellData.id_cambio_turno)"
-                        >
-                          <IconEliminar title="Eliminar" />
-                        </div>
-                      </div>
-                    </template>
-                  </DataTable>
+                      </template>
+                    </DataTable>
+                  </div>
                 </div>
               </div>
             </div>

@@ -72,10 +72,6 @@ const buscarInfoPacienteRut = async (rut, index) => {
         props.form.entregados[index].diagnostico = data.diagnostico;
         props.form.errors[`entregados.${index}.run`] = "";
       }
-      // else {
-      //   props.errors[`entregados.${index}.run`] =
-      //     "El run ingresado no existe en nuestros registros.";
-      // }
     } catch (err) {
       console.error({ err });
       const responseData = err.response?.data;
@@ -135,7 +131,7 @@ if (props.updating) {
         </PrimaryButton>
       </div>
     </div>
-    <div v-if="props.form.entregados.length > 0" class="flex flex-col pt-2">
+    <div v-if="props.form?.entregados.length > 0" class="flex flex-col pt-2">
       <div
         class="grid grid-cols-6 gap-4 p-2"
         style="grid-template-columns: 2fr 2fr 2fr 2fr 2fr 1fr"
