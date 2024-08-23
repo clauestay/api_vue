@@ -28,7 +28,7 @@ const toggleDropdown = () => {
                         <div class="flex">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
-                                <router-link to="/inicio" class="text-red-500">
+                                <router-link to="/entrega-turno/inicio" class="text-red-500">
                                 Instituto Nacional del Cáncer
                                 </router-link>
                             </div>

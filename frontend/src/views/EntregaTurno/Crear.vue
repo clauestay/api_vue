@@ -7,22 +7,22 @@ import EntregaTurnoForm from '@/views/EntregaTurno/Form.vue';
 import FooterInc from '@/components/FooterInc.vue';
 import { Head, useHead } from '@vueuse/head';
 import { useAuthStore } from "@/stores/auth";
-import { useEntregaTurno } from "@/composables/entregaTurno";
 import { useFetch } from "@/composables/fetch";
-import { manejarError } from '@/functions';
 import { useForm } from 'laravel-precognition-vue';
 import { alertaExito, alertaError, alertaErrores } from '@/helpers/AlertasSweetAlert';
+
+useHead({ title: 'Crear turno' });
 
 const authStore = useAuthStore();
 const cod_prof = authStore.authUser.codigo_profesional?.cod_prof;
 
-const { data: dataMedicos, error: medicoError, fetchData: medicoFetchData } = useFetch("/medicosEntregaTurno");
+const { data: dataMedicos, error: medicoError, fetchData: medicoFetchData } = useFetch("/entrega-turno/medicosEntregaTurno");
 const medicos = computed(() => dataMedicos.value?.data?.medicos || []);
 
-const { data: dataUnidades, error: medicoUnidades, fetchData: unidadesFetchData } = useFetch("/unidades");
+const { data: dataUnidades, error: medicoUnidades, fetchData: unidadesFetchData } = useFetch("/entrega-turno/unidades");
 const unidades = computed(() => dataUnidades.value?.data?.unidades || []);
 
-const { data: dataMedicoEntrega, error: medicoMedicoEntrega, fetchData: medicoEntregaFetchData } = useFetch(`/medicoEntregaTurno/${cod_prof}`);
+const { data: dataMedicoEntrega, error: medicoMedicoEntrega, fetchData: medicoEntregaFetchData } = useFetch(`/entrega-turno/medicoEntregaTurno/${cod_prof}`);
 const medico_entrega = computed(() => dataMedicoEntrega.value?.data?.medico_entrega || []);
 
 onMounted(async () => {
@@ -31,13 +31,11 @@ onMounted(async () => {
     await medicoEntregaFetchData();
 });
 
-useHead({
-    title: 'Crear turno',
-});
+
 
 const router = useRouter();
 
-const form = useForm('post', '/guardarCambioTurno', {
+const form = useForm('post', '/entrega-turno/guardarCambioTurno', {
     id_turno: '',
     entregados: [],
     traslados: [],
@@ -63,7 +61,7 @@ const submit = () => {
         if (responseData.exito) {
             alertaExito(responseData.exito);
             form.reset();
-            router.push('/misTurnos');
+            router.push('/entrega-turno/misTurnos');
         } else if (responseData.error) {
             alertaError(responseData.error);
         }
@@ -96,7 +94,7 @@ const submit = () => {
                 <div class="bg-white p-4 overflow-hidden shadow-2xl sm:rounded-lg">
                     <div>
                         <div class="px-0 py-6 bg-white border-gray-200 mt-6">
-                            <router-link :to="'/inicio'"
+                            <router-link :to="'/entrega-turno/inicio'"
                                 class="text-white bg-naranjo-light hover:bg-naranjo-dark focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">
                             Volver
                             </router-link>

@@ -9,17 +9,19 @@ use App\Http\Controllers\Api\EntregaTurno;
 
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Route::get('/user', function (Request $request) {
+//     return $request->user();
+// })->middleware('auth:sanctum');
 
-// logout route
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')
+->prefix('entrega-turno')
+->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     /**
-     * Lstado rutas cambio turno.
+     * Lstado rutas entrega de turno.
      */
     Route::get('/medicoEntregaTurno/{cod_prof}', [EntregaTurno::class, 'medicoEntregaTurno']);
     Route::get('/unidades', [EntregaTurno::class, 'unidades']);

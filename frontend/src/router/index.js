@@ -16,32 +16,32 @@ const router = createRouter({
       component: () => import('../views/Error.vue')
     },
     {
-      path: '/inicio',
+      path: '/entrega-turno/inicio',
       name: 'Inicio',
       component: () => import('../views/EntregaTurno/Inicio.vue')
     },
     {
-      path: '/crear',
+      path: '/entrega-turno/crear',
       name: 'Crear',
       component: () => import('../views/EntregaTurno/Crear.vue')
     },
     {
-      path: '/misTurnos',
+      path: '/entrega-turno/misTurnos',
       name: 'MisTurnos',
       component: () => import('../views/EntregaTurno/MisTurnos.vue')
     },
     {
-      path: '/listadoTurnos',
+      path: '/entrega-turno/listadoTurnos',
       name: 'Listadoturnos',
       component: () => import('../views/EntregaTurno/ListadoTurnos.vue')
     },
     {
-      path: '/editar/:id',
+      path: '/entrega-turno/editar/:id',
       name: 'Editar',
       component: () => import('../views/EntregaTurno/Editar.vue')
     },
     {
-      path: '/detalle-turno/:id',
+      path: '/entrega-turno/detalle-turno/:id',
       name: 'Detalle-turno',
       component: () => import('../views/EntregaTurno/Detalle.vue')
     }

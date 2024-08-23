@@ -26,6 +26,7 @@
     "pdfmake": "^0.2.11",
     "pinia": "^2.2.1",
     "pinia-plugin-persistedstate": "^3.2.1",
+    "primeicons": "^7.0.0",
     "primevue": "^4.0.4",
     "rut.js": "^2.1.0",
     "sweetalert2": "^11.12.4",

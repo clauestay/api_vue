@@ -63,7 +63,7 @@ const buscarInfoPacienteFallecido = async (rut, index) => {
   if (validate(rut)) {
     rut = props.limpiarRut(rut);
     try {
-      const response = await axios.get(`/obtenerInfoPaciente/${rut}`);
+      const response = await axios.get(`/entrega-turno/obtenerInfoPaciente/${rut}`);
       let data = response.data.info_paciente;
       if (data != null) {
         props.form.fallecidos[index].nombre = data.nombre_completo;
@@ -125,7 +125,7 @@ if (props.updating) {
           title="agregar paciente fallecido."
           @click.prevent="agregarLineaFallecido"
         >
-          +
+        <i class="pi pi-plus cursor-pointer hover:animate-pulse" style="font-size: 1rem;"></i>
         </PrimaryButton>
       </div>
     </div>

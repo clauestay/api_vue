@@ -324,15 +324,12 @@ class RpCambioTurno extends Model
             $fecha_salida->format('Y-m-d H:i:s');
         }
 
-        $update_turno->DOCTOR_ENTREGA_TURNO = $datos['medico_entrega']['id'];
-        $update_turno->DOCTOR_RECIBE_TURNO = $datos['medico_recibe']['id'];
+        $update_turno->DOCTOR_ENTREGA_TURNO = $datos['medico_entrega'] ? $datos['medico_entrega']['id'] : $update_turno->DOCTOR_ENTREGA_TURNO;
+        $update_turno->DOCTOR_RECIBE_TURNO = $datos['medico_recibe'] ? $datos['medico_recibe']['id'] : $update_turno->DOCTOR_RECIBE_TURNO;
         $update_turno->USUARIO = Auth::user()->usuario_id;
         $update_turno->FECHA_LLEGADA = $fecha_llegada;
         $update_turno->FECHA_SALIDA = $fecha_salida;
         $update_turno->NOVEDADES = $datos['novedades'];
-        // $update_turno->CANTIDAD_CIRUGIAS = $datos['cantidad_cirugias'];
-        // $update_turno->CANTIDAD_FALLECIDOS = $datos['cantidad_fallecidos'];
-        // $update_turno->CANTIDAD_TRASLADOS = $datos['cantidad_traslados'];
         $update_turno->save();
 
         return $update_turno;

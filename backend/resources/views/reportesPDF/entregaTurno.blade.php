@@ -228,12 +228,12 @@
                     <th scope="col" class="text-center">
                         ________________________________
                         <p>Profesional Medico residente</p>
-                        <p>{{ $turno->medicoEntrega->nombre1_prof }} {{ $turno->medicoEntrega->apepat_prof }} {{ $turno->medicoEntrega->apemat_prof }}</p>
+                        <p>{{ $turno->medicoEntrega->sta_descripcion }}</p>
                     </th>
                     <th scope="col" class="text-center">
                         ________________________________
                         <p>Recibe Turno conforme</p>
-                        <p>{{ $turno->medicoRecibe->nombre1_prof }} {{ $turno->medicoRecibe->apepat_prof }} {{ $turno->medicoRecibe->apemat_prof }}</p>
+                        <p>{{ $turno->medicoRecibe->sta_descripcion }}</p>
                     </th>
                 </tr>
             </thead>

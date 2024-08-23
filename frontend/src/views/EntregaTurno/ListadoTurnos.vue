@@ -3,14 +3,11 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Banner from "@/components/Banner.vue";
-import Button from "primevue/button";
+import PrimaryButton from '@/components/PrimaryButton.vue';
 import FooterInc from "@/components/FooterInc.vue";
 import { Head, useHead } from "@vueuse/head";
 import { reactive } from "vue";
 import { useFetch } from "@/composables/fetch";
-import IconFile from "@/components/icons/IconFile.vue";
-import IconFileText from "@/components/icons/IconFileText.vue";
-import IconPrinter from "@/components/icons/IconPrinter.vue";
 import jszip from "jszip";
 import pdfmake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -28,7 +25,7 @@ import ProgressSpinner from "primevue/progressspinner";
 
 useHead({ title: "Listado de turnos" });
 
-const { data, error, loading, fetchData } = useFetch("/listadoTurnos");
+const { data, error, loading, fetchData } = useFetch("/entrega-turno/listadoTurnos");
 
 const turnos = computed(() => data.value?.data?.turnos?.data || []);
 
@@ -183,14 +180,14 @@ const detalle_turno = (id_turno) => {
                     >
                       <template #action="data">
                         <div class="flex gap-4">
-                          <div
-                            class="inline-flex gap-2"
+                          <PrimaryButton
+                            class="inline-flex gap-2 bg-blue-600 hover:bg-blue-800 rounded-3xl"
                             @click="
                               detalle_turno(data.cellData.id_cambio_turno)
                             "
                           >
-                            <IconIr title="Ver" />
-                          </div>
+                            <i class="pi pi-eye cursor-pointer hover:animate-pulse" style="font-size: 1.8rem;"></i>
+                        </PrimaryButton>
                         </div>
                       </template>
                     </DataTable>

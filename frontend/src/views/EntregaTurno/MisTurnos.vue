@@ -4,10 +4,8 @@ import { useRouter } from "vue-router";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Banner from "@/components/Banner.vue";
 import FooterInc from "@/components/FooterInc.vue";
-import IconIr from "@/components/icons/IconIr.vue";
-import IconEdit from "@/components/icons/IconEdit.vue";
-import IconEliminar from "@/components/icons/IconEliminar.vue";
 import Label from "@/components/InputLabel.vue";
+import PrimaryButton from '@/components/PrimaryButton.vue';
 import { Head, useHead } from "@vueuse/head";
 import { useFetch } from "@/composables/fetch";
 import jszip from "jszip";
@@ -27,7 +25,7 @@ import ProgressSpinner from 'primevue/progressspinner';
 
 useHead({ title: "Mis turnos" });
 
-const { data, error, loading, fetchData /*, borrarRegistro*/ } = useFetch("/misTurnos");
+const { data, error, loading, fetchData /*, borrarRegistro*/ } = useFetch("/entrega-turno/misTurnos");
 
 const turnos = computed(() => data.value?.data?.turnos?.data || []);
 
@@ -122,7 +120,7 @@ const detalle_turno = (id_turno) => {
 };
 
 const editar_turno = (id_turno) => {
-  router.push(`/editar/${id_turno}`);
+  router.push(`/entrega-turno/editar/${id_turno}`);
 };
 
 const permitirEditarTurno = (fecha) => {
@@ -210,21 +208,21 @@ const permitirEditarTurno = (fecha) => {
                     >
                       <template #action="data">
                         <div class="flex gap-4">
-                          <div
-                            class="inline-flex gap-2"
+                          <PrimaryButton
+                            class="inline-flex gap-2 bg-blue-600 hover:bg-blue-800 rounded-3xl"
                             @click="
                               detalle_turno(data.cellData.id_cambio_turno)
                             "
                           >
-                            <IconIr title="Ver" />
-                          </div>
-                          <!-- v-if="permitirEditarTurno(data.cellData.fecha)" -->
-                          <div
-                            class="inline-flex gap-2 bg-yellow-400"
-                            @click="editar_turno(data.cellData.id_cambio_turno)"
-                          >
-                            <IconEdit title="Editar" />
-                          </div>
+                            <i class="pi pi-eye cursor-pointer hover:animate-pulse" style="font-size: 1.8rem;"></i>
+                        </PrimaryButton>
+                            <PrimaryButton
+                            class="inline-flex gap-2 bg-green-500 hover:bg-green-700 rounded-3xl"
+                            v-if="permitirEditarTurno(data.cellData.fecha)"
+                              @click="editar_turno(data.cellData.id_cambio_turno)"
+                            >
+                              <i class="pi pi-file-edit cursor-pointer" style="font-size: 1.8rem;"></i>
+                            </PrimaryButton>
                           <!-- <div
                             v-if="permitirEditarTurno(data.cellData.fecha)"
                             class="inline-flex gap-2"

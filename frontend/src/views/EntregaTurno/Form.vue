@@ -1,6 +1,5 @@
 <script setup>
 import { watch } from "vue";
-// import { useRouter } from "vue-router";
 import FormSection from "@/components/FormSection.vue";
 import EntregaSeccion from "@/views/EntregaTurno/EntregaSeccion.vue";
 import FallecidosSeccion from "@/views/EntregaTurno/FallecidosSeccion.vue";
@@ -100,13 +99,13 @@ const validarTurnoExistente = (llegada, salida, medico_entrega) => {
   };
 
   axios
-    .get("/comprobarTurnoExistente", { params: data })
+    .get("/entrega-turno/comprobarTurnoExistente", { params: data })
     .then((resp) => {
       let response = resp.data.existeTurno;
       console.log({ data });
       if (response != null) {
         alertaPregunta(
-          "Editar",
+          "alertaPregunta/Editar",
           response.msg,
           {  parametro: response.parametro }
         );
@@ -179,8 +178,8 @@ if (!props.updating) {
                   @change="props.form.validate('fecha_llegada')"
                   :aria-label="props.form.fecha_llegada"
                   type="datetime-local"
-                  :min="minDate"
-                  :max="maxDate"
+                  :min="!props.updating ?? minDate"
+                  :max="!props.updating ?? maxDate"
                   class="mt-1 block w-full"
                   autofocus
                 />
@@ -197,8 +196,8 @@ if (!props.updating) {
                   :change="props.form.validate('fecha_salida')"
                   :aria-label="props.form.fecha_salida"
                   type="datetime-local"
-                  :min="minDate"
-                  :max="maxDate"
+                  :min="!props.updating ?? minDate"
+                  :max="!props.updating ?? maxDate"
                   class="mt-1 block w-full"
                   autofocus
                 />

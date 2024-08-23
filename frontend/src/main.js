@@ -1,4 +1,5 @@
 import './assets/tailwind.css'
+import 'primeicons/primeicons.css';
 
 import { createApp, markRaw } from 'vue'
 import { createPinia } from 'pinia'

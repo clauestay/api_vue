@@ -24,7 +24,7 @@ useHead({
                     <div class="pt-4 px-5">
                         <div class="flex items-center">
                             <div class="overflow-hidden shadow-xl sm:rounded-lg">
-                                <router-link to="/crear"
+                                <router-link to="/entrega-turno/crear"
                                     class="bg-naranjo-light-0 px-12 py-12
                                         inline-flex items-center border border-naranjo-dark rounded-md text-gris-dark text-center capitalized tracking-widest hover:bg-naranjo-dark hover:text-white focus:outline-none focus:ring disabled:opacity-25 transition">
                                 Entrega de Turnos
@@ -36,7 +36,7 @@ useHead({
                     <div class="pt-4 px-5">
                         <div class="flex items-center">
                             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                                <router-link to="/misTurnos"
+                                <router-link to="/entrega-turno/misTurnos"
                                     class="bg-naranjo-light-0 px-12 py-12
                                         inline-flex items-center border border-naranjo-dark rounded-md text-gris-dark text-center capitalized tracking-widest hover:bg-naranjo-dark hover:text-white focus:outline-none focus:ring disabled:opacity-25 transition">
                                 Mis turnos
@@ -48,7 +48,7 @@ useHead({
                     <div class="pt-4 px-5">
                         <div class="flex items-center">
                             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                                <router-link to="/listadoTurnos"
+                                <router-link to="/entrega-turno/listadoTurnos"
                                     class="bg-naranjo-light-0 px-12 py-12
                                         inline-flex items-center border border-naranjo-dark rounded-md text-gris-dark text-center capitalized tracking-widest hover:bg-naranjo-dark hover:text-white focus:outline-none focus:ring disabled:opacity-25 transition">
                                 Listado de Turnos

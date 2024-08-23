@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from "vue-router";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Banner from "@/components/Banner.vue";
@@ -9,33 +9,54 @@ import Button from 'primevue/button';
 import { useHead } from "@vueuse/head";
 import dayjs from 'dayjs';
 import ProgressSpinner from 'primevue/progressspinner';
-import { useEntregaTurnoStore } from '@/stores/entregaTurno';
-
-const route = useRoute();
-
-const entregaTurnoStore = useEntregaTurnoStore();
-
-const id_turno = route.params.id;
-
-onMounted(() => {
-    entregaTurnoStore.obtenerTurno(id_turno);
-})
+import { useFetch } from "@/composables/fetch";
+import { manejarError, generarPdf } from '@/functions';
 
 useHead({ title: "Detalle turno" });
+
+const route = useRoute();
+const id_turno = route.params.id;
+const loading = ref(false);
+
+const {data: dataTurno, fetchData: turnoFetchData } = useFetch(`/entrega-turno/obtenerTurno/${id_turno}`);
+const turno = computed(() => dataTurno.value?.data?.turno || []);
+
+const {data: dataEntregados, fetchData: entregadosFetchData } = useFetch(`/entrega-turno/obtenerEntregados/${id_turno}`);
+const entregados = computed(() => dataEntregados.value?.data?.entregados || []);
+
+const {data: dataTraslados, fetchData: trasladosFetchData } = useFetch(`/entrega-turno/obtenerTraslados/${id_turno}`);
+const traslados = computed(() => dataTraslados.value?.data?.traslados || []);
+
+const {data: dataFallecidos, fetchData: fallecidosFetchData } = useFetch(`/entrega-turno/obtenerFallecidos/${id_turno}`);
+const fallecidos = computed(() => dataFallecidos.value?.data?.fallecidos || []);
+
+const {data: dataCirugias, fetchData: cirugiasFetchData } = useFetch(`/entrega-turno/obtenerCirugias/${id_turno}`);
+const cirugias = computed(() => dataCirugias.value?.data?.cirugias || []);
+
+onMounted(async () => {
+    loading.value = true;
+    try {
+        await turnoFetchData();
+        await entregadosFetchData();
+        await trasladosFetchData();
+        await fallecidosFetchData();
+        await cirugiasFetchData();
+    } catch (error) {
+        manejarError(error, 'Error al obtener el turno');
+    } finally {
+        loading.value = false;
+    }
+})
+
+const sinInfo = 'Sin información';
 
 const goBack = () => {
     window.history.back();
 };
 
-const loading = computed(() => entregaTurnoStore.loading);
-const sinInfo = computed(() => entregaTurnoStore.sinInfo);
-const turno = computed(() => entregaTurnoStore.turno);
-const entregados = computed(() => entregaTurnoStore.entregados);
-const traslados = computed(() => entregaTurnoStore.traslados);
-const fallecidos = computed(() => entregaTurnoStore.fallecidos);
-const cirugias = computed(() => entregaTurnoStore.cirugias);
-const generarPdf = () => {
-    entregaTurnoStore.generarPdf(id_turno);
+const exportarPdf = async () => {
+    let url =  `/entrega-turno/generarPdfTurno/${id_turno}`;
+    await generarPdf(url);
 }
 
 </script>
@@ -73,10 +94,7 @@ const generarPdf = () => {
                                                 <div class="md:w-1/2">
                                                     <div class="mx-10">
                                                         <Label class="text-gris-dark">
-                                                            {{ turno?.medico_entrega?.nombre1_prof }}
-                                                            {{ turno?.medico_entrega?.nombre2_prof }}
-                                                            {{ turno?.medico_entrega?.apepat_prof }}
-                                                            {{ turno?.medico_entrega?.apemat_prof }}
+                                                            {{ turno?.medico_entrega?.sta_descripcion }}
                                                         </Label>
                                                     </div>
                                                 </div>
@@ -88,10 +106,7 @@ const generarPdf = () => {
                                                 <div class="md:w-1/2">
                                                     <div class="mx-10">
                                                         <Label class="text-gris-dark">
-                                                            {{ turno?.medico_recibe?.nombre1_prof }}
-                                                            {{ turno?.medico_recibe?.nombre2_prof }}
-                                                            {{ turno?.medico_recibe?.apepat_prof }}
-                                                            {{ turno?.medico_recibe?.apemat_prof }}
+                                                            {{ turno?.medico_recibe?.sta_descripcion }}
                                                         </Label>
                                                     </div>
                                                 </div>
@@ -123,7 +138,7 @@ const generarPdf = () => {
                                         </div>
                                     </div>
                                     <div class="w-full flex justify-center items-center">
-                                        <Button label="Generar PDF" @click="generarPdf()" severity="help"></Button>
+                                        <Button label="Generar PDF" @click="exportarPdf()" severity="help"></Button>
                                     </div>
                                 </div>
                             </div>
