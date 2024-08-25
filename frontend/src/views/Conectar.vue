@@ -10,15 +10,16 @@ const authStore = useAuthStore();
 function getQueryParams() {
     const params = new URLSearchParams(window.location.search);
     return {
+        url: params.get('url'),
         login: params.get('login'),
         password: params.get('password'),
     };
 }
 
 // Capturar los parámetros de la URL
-const { login, password } = getQueryParams();
+const { url, login, password } = getQueryParams();
 
 if (login && password) {
-    authStore.login(login,password);
+    authStore.login(url,login,password);
 }
 </script>

@@ -9,16 +9,12 @@ use App\Http\Controllers\Api\EntregaTurno;
 
 Route::post('/login', [AuthController::class, 'login']);
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
-
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 Route::middleware('auth:sanctum')
 ->prefix('entrega-turno')
 ->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
+    // Route::post('/logout', [AuthController::class, 'logout']);
 
     /**
      * Lstado rutas entrega de turno.

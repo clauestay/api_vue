@@ -11,6 +11,11 @@ const router = createRouter({
       component: Conectar
     },
     {
+      path: '/logout',
+      name: 'Logout',
+      component: () => import('../views/Logout.vue')
+    },
+    {
       path: '/error',
       name: 'Error',
       component: () => import('../views/Error.vue')
@@ -49,7 +54,7 @@ const router = createRouter({
 })
 
 router.beforeEach( async (to) => {
-  const publicPages = ['/', '/error'];
+  const publicPages = ['/', '/error', '/logout'];
   const authRequired = !publicPages.includes(to.path);
   const auth = useAuthStore();
   if (authRequired && !auth.user) {

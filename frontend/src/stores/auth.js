@@ -4,7 +4,9 @@ import { alertaError, alertaExito } from '@/helpers/AlertasSweetAlert';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        authUser: null, authToken: null }),
+        authUser: null,
+        authToken: null,
+        allowedLoginUrls: ['entrega-turno'] }), // aca va el listado de urls de los nuevos módulos que usen vue y la api.
     getters: {
         user:(state) => state.authUser,
         token:(state) => state.authToken
@@ -13,8 +15,12 @@ export const useAuthStore = defineStore('auth', {
         async getToken() {
             await axios.get('/sanctum/csrf-cookie');
         },
-        async login(login, password) {
-            // await axios.getToken();
+        async login(url, login, password) {
+            if (!this.allowedLoginUrls.includes(url)) {
+                alertaError('La URL de login no está permitida.');
+                return;
+            }
+
             await axios.post('/login', {
                     login: login,
                     password: password
@@ -23,7 +29,7 @@ export const useAuthStore = defineStore('auth', {
                 this.authToken = response.data.token;
                 alertaExito('Usuario autenticado con exito!');
                 setTimeout(() => {
-                    this.router.push({ name: 'Inicio' });
+                    this.router.push(`/${url}/inicio`);
                 })
             }).catch((error) => {
                 let message = '';
@@ -32,19 +38,22 @@ export const useAuthStore = defineStore('auth', {
                 )
                 console.log(message);
                 alertaError(message);
-                // this.router.push({ name: 'Error' });
             });
         },
         async logout() {
-            await axios.post('/logout', this.authToken);
-            this.authUser = null;
-            this.authToken = null;
-            // delete storage.token
-            localStorage.removeItem('auth');
-            this.router.push('/login');
+            axios.defaults.headers.common["Authorization"] = "Bearer " + this.authToken;
+            await axios.post('logout').finally(() => {
+                this.authUser = null;
+                this.authToken = null;
+                localStorage.removeItem('auth');
+                axios.defaults.headers.common["Authorization"] = null;
+                this.router.push({ name: 'Logout' });
+            }).catch((error) => {
+                console.log(error);
+                alertaError(error);
+            });
         }
     },
-    // presist: true
     persist: {
         storage: localStorage,
       },

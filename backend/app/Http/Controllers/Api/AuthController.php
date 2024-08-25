@@ -59,5 +59,4 @@ class AuthController extends Controller
             return response()->json(['message' => 'Token inválido o expirado.'], 401);
         }
     }
-
 }
