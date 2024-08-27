@@ -125,12 +125,24 @@ const exportarPdf = async () => {
                                             </div>
                                             <div class="md:flex">
                                                 <div class="md:w-1/2 md:mb-0">
-                                                    <Label class="mx-10 font-bold tex-gris-dark">Fecha fin:</Label>
+                                                    <Label class="mx-10 font-bold text-gris-dark">Fecha fin:</Label>
                                                 </div>
                                                 <div class="md:w-1/2">
                                                     <div class="mx-10">
                                                         <Label class="text-gris-dark">
                                                             {{ turno?.fecha_salida ? dayjs(turno.fecha_salida).format('DD-MM-YYYY HH:mm') : '-' }}
+                                                        </Label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="md:flex">
+                                                <div class="md:w-1/2 md:mb-0">
+                                                    <Label class="mx-10 font-bold text-gris-dark">Duración:</Label>
+                                                </div>
+                                                <div class="md:w-1/2">
+                                                    <div class="mx-10">
+                                                        <Label class="text-gris-dark">
+                                                            {{ turno?.qhoras ? `${turno.qhoras} horas` : '-' }}
                                                         </Label>
                                                     </div>
                                                 </div>
@@ -152,7 +164,7 @@ const exportarPdf = async () => {
                                     <div class="min-w-full border-b shadow overflow-x-auto">
                                         <table class="w-full whitespace-nowrap rounded-lg overflow-hidden shadow-lg">
                                             <thead class="bg-[#DCE3FF]">
-                                                <tr>
+                                                <tr v-if="entregados.length > 0">
                                                     <th class="py-2 px-4 border-b border-grey-light text-left">
                                                         <Label class="font-bold text-gris-dark">Rut</Label>
                                                     </th>
@@ -179,7 +191,7 @@ const exportarPdf = async () => {
                                                     </td>
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">
                                                         <div class="px-2">
-                                                            <Label class="text-gris-dark">{{ entregado.nombre_completo }}</Label>
+                                                            <Label class="text-gris-dark">{{ entregado.nombre }}</Label>
                                                         </div>
                                                     </td>
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">
@@ -217,7 +229,7 @@ const exportarPdf = async () => {
                                     <div class="min-w-full border-b border-gray-200 shadow overflow-x-auto">
                                         <table class="w-full whitespace-nowrap rounded-lg overflow-hidden shadow-lg">
                                             <thead class="bg-[#DCE3FF]">
-                                                <tr>
+                                                <tr v-if="traslados.length > 0">
                                                     <th class="py-2 px-4 border-b border-grey-light text-left">
                                                         <Label class="font-bold text-gris-dark">Rut</Label>
                                                     </th>
@@ -241,7 +253,7 @@ const exportarPdf = async () => {
                                                     </td>
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">
                                                         <div class="px-2">
-                                                            <Label class="text-gris-dark">{{ traslado.nombre_completo }}</Label>
+                                                            <Label class="text-gris-dark">{{ traslado.nombre }}</Label>
                                                         </div>
                                                     </td>
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">
@@ -297,7 +309,7 @@ const exportarPdf = async () => {
                                     <div class="min-w-full border-b border-gray-200 shadow overflow-x-auto">
                                         <table class="w-full whitespace-nowrap rounded-lg overflow-hidden shadow-lg">
                                             <thead class="bg-[#DCE3FF]">
-                                                <tr>
+                                                <tr v-if="fallecidos.length > 0">
                                                     <th class="py-2 px-4 border-b border-grey-light text-left">
                                                         <Label class="font-bold text-gris-dark">Rut</Label>
                                                     </th>
@@ -321,7 +333,7 @@ const exportarPdf = async () => {
                                                     </td>
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">
                                                         <div class="px-2">
-                                                            <Label class="text-gris-dark">{{ fallecido.nombre_completo }}</Label>
+                                                            <Label class="text-gris-dark">{{ fallecido.nombre }}</Label>
                                                         </div>
                                                     </td>
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">
@@ -354,7 +366,7 @@ const exportarPdf = async () => {
                                     <div class="min-w-full border-b shadow overflow-x-auto">
                                         <table class="w-full whitespace-nowrap rounded-lg overflow-hidden shadow-lg">
                                             <thead class="bg-[#DCE3FF]">
-                                                <tr>
+                                                <tr v-if="cirugias.length > 0">
                                                     <th class="py-2 px-4 border-b border-grey-light text-left">
                                                         <Label class="font-bold text-gris-dark">Rut</Label>
                                                     </th>
@@ -381,7 +393,7 @@ const exportarPdf = async () => {
                                                     </td>
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">
                                                         <div class="px-2">
-                                                            <Label class="text-gris-dark">{{ cirugia.nombre_completo }}</Label>
+                                                            <Label class="text-gris-dark">{{ cirugia.nombre }}</Label>
                                                         </div>
                                                     </td>
                                                     <td class="py-2 px-4 border-b border-grey-light text-left border-y border-[#DCE3FD]">

@@ -71,7 +71,7 @@ class RpCambioTurno extends Model
 
     public static function getMisTurnos($cod_prof, $search = null)
     {
-        $query = self::select('ID_CAMBIO_TURNO', 'FECHA_LLEGADA', 'FECHA', 'FECHA_SALIDA', 'DOCTOR_ENTREGA_TURNO', 'DOCTOR_RECIBE_TURNO')
+        $query = self::select('ID_CAMBIO_TURNO', 'FECHA_LLEGADA', 'FECHA', 'FECHA_SALIDA', 'DOCTOR_ENTREGA_TURNO', 'DOCTOR_RECIBE_TURNO', 'QHORAS')
             ->where('DOCTOR_ENTREGA_TURNO', $cod_prof)
             ->where('ESTADO', 1)
             ->with(['medicoEntrega', 'medicoRecibe'])
@@ -107,7 +107,7 @@ class RpCambioTurno extends Model
     // funciones
     public static function getAllTurnos($search = null )
     {
-        $query = self::select('ID_CAMBIO_TURNO', 'FECHA_LLEGADA', 'FECHA', 'FECHA_SALIDA', 'DOCTOR_ENTREGA_TURNO', 'DOCTOR_RECIBE_TURNO')
+        $query = self::select('ID_CAMBIO_TURNO', 'FECHA_LLEGADA', 'FECHA', 'FECHA_SALIDA', 'DOCTOR_ENTREGA_TURNO', 'DOCTOR_RECIBE_TURNO', 'QHORAS')
             ->where('ESTADO', 1)
             ->with(['medicoEntrega', 'medicoRecibe'])
             ->orderBy('ID_CAMBIO_TURNO', 'DESC');
@@ -285,7 +285,7 @@ class RpCambioTurno extends Model
             $fecha_salida->format('Y-m-d H:i:s');
         }
 
-        $cantidad_horas = $fecha_salida->diffInHours($fecha_llegada);
+        $cantidad_horas = $fecha_llegada->diffInHours($fecha_salida);
 
         $turno = new RpCambioTurno();
         $turno->DOCTOR_ENTREGA_TURNO = $datos['medico_entrega']['id'];
@@ -324,11 +324,14 @@ class RpCambioTurno extends Model
             $fecha_salida->format('Y-m-d H:i:s');
         }
 
+        $cantidad_horas = $fecha_llegada->diffInHours($fecha_salida);
+
         $update_turno->DOCTOR_ENTREGA_TURNO = $datos['medico_entrega'] ? $datos['medico_entrega']['id'] : $update_turno->DOCTOR_ENTREGA_TURNO;
         $update_turno->DOCTOR_RECIBE_TURNO = $datos['medico_recibe'] ? $datos['medico_recibe']['id'] : $update_turno->DOCTOR_RECIBE_TURNO;
         $update_turno->USUARIO = Auth::user()->usuario_id;
         $update_turno->FECHA_LLEGADA = $fecha_llegada;
         $update_turno->FECHA_SALIDA = $fecha_salida;
+        $update_turno->QHORAS = $cantidad_horas;
         $update_turno->NOVEDADES = $datos['novedades'];
         $update_turno->save();
 

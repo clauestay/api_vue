@@ -42,9 +42,14 @@ const cols =
       title: "Código",
     },
     {
-      data: "fecha",
-      title: "Fecha",
+      data: null,
+      title: "Horario",
       type: "date",
+      render: (data, type, row) => {
+        return (
+          "<b>inicio</b>: " + row.fecha_llegada + "<br><b>fin</b>: " + row.fecha_salida + "<br><b>duracion:</b> " + row.qhoras
+        )
+      }
     },
     {
       data: "medico_entrega.sta_descripcion",

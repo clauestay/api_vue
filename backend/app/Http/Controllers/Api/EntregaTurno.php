@@ -20,6 +20,7 @@ use App\Models\AdmIngresos;
 use App\Models\GenUnidad;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon as carbon;
+use Carbon\CarbonInterval;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Requests\CrearCambioTurnoRequest;
@@ -55,22 +56,32 @@ class EntregaTurno extends Controller
 
     public function obtenerInfoPaciente($rut): JsonResponse
     {
-        $paciente = Paciente::datosPacienteRut($rut);
-        $datos = null;
+        try {
+            $paciente = Paciente::datosPacienteRut($rut);
+            $datos = null;
 
-        if(!$paciente) {
+            if(!$paciente) {
+                return response()->json([
+                    "error" => "El run ingresado no existe en nuestros registros."
+                ], 404);
+            }
+
+            $diagnostico = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+            $ubicacion = EnfTraslados::getDatosHospitalizado($paciente->id_ambulatorio);
+
+            $datos = [
+                "nombre_completo" => $paciente->nombre_completo,
+                "diagnostico" => $diagnostico,
+                "ubicacion" => $ubicacion->isEmpty() ? null : $ubicacion
+            ];
+
+            return response()->json(['info_paciente' => $datos]);
+        } catch (\Exception $e) {
             return response()->json([
-                "error" => "El run ingresado no existe en nuestros registros."
-            ], 404);
+                "error" => "Se ha producido un error en la red o un error inesperado.",
+                "details" => $e
+            ]);
         }
-
-        $diagnostico = Paciente::traerDiagnostico($paciente->id_ambulatorio);
-        $datos = [
-            "nombre_completo" => $paciente->nombre_completo,
-            "diagnostico" => $diagnostico
-        ];
-
-        return response()->json(['info_paciente' => $datos]);
     }
 
     public function obtenerTrasladoPacienteRut($rut): JsonResponse
@@ -134,6 +145,7 @@ class EntregaTurno extends Controller
                 // formato de fecha
                 $turno->fecha_llegada = Carbon::parse($turno->fecha_llegada)->format('d-m-Y H:i');
                 $turno->fecha_salida = Carbon::parse($turno->fecha_salida)->format('d-m-Y H:i');
+                $turno->qhoras = floor($turno->qhoras) . " Horas";
                 return $turno;
             });
 

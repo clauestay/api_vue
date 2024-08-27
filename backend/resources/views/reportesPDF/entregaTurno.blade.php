@@ -26,11 +26,13 @@
 
 <body>
     <legend class="text-center">Entrega de Turno</legend>
-    <p class="text-center">Fecha Inicio: {{ \Carbon\Carbon::parse($turno->fecha_llegada)->format('d/m/Y H:i') }} - Fecha Fin: {{ \Carbon\Carbon::parse($turno->fecha_salida)->format('d/m/Y H:i') }}</p>
+    <p class="text-center"><b>Fecha Inicio:</b> {{ \Carbon\Carbon::parse($turno->fecha_llegada)->format('d/m/Y H:i') }} - <b>Fecha Fin:</b> {{ \Carbon\Carbon::parse($turno->fecha_salida)->format('d/m/Y H:i') }}<br>
+    <b>Duración:</b> {{ $turno->qhoras ? $turno->qhoras . ' horas' : 'Sin información' }}</p>
 
-    <legend>Entregados</legend>
+    <legend class="text-center">Entregados</legend>
     <table class="table">
         <thead>
+            @if ($entregados->count() > 0)
             <tr>
                 <th scope="col">Rut</th>
                 <th scope="col">Nombre</th>
@@ -38,6 +40,7 @@
                 <th scope="col">Problemas / Intervenciones</th>
                 <th scope="col">Examenes o Procedimientos Pendientes</th>
             </tr>
+            @endif
         </thead>
         <tbody>
             @forelse ($entregados as $entregado)
@@ -68,15 +71,17 @@
         </tbody>
     </table>
 
-    <legend>Traslados</legend>
+    <legend class="text-center">Traslados</legend>
     <table class="table">
         <thead>
+            @if ($traslados->count() > 0)
             <tr>
                 <th scope="col">Rut</th>
                 <th scope="col">Nombre</th>
                 <th scope="col">Diagnóstico</th>
                 <th scope="col">Información traslado</th>
             </tr>
+            @endif
         </thead>
         <tbody>
             @forelse ($traslados as $traslado)
@@ -109,15 +114,17 @@
         </tbody>
     </table>
 
-    <legend>Fallecidos</legend>
+    <legend class="text-center">Fallecidos</legend>
     <table class="table">
         <thead>
+            @if ($fallecidos->count() > 0)
             <tr>
                 <th scope="col">Rut</th>
                 <th scope="col">Nombre</th>
                 <th scope="col">Diagnóstico</th>
                 <th scope="col">Fecha Fallecimiento</th>
             </tr>
+            @endif
         </thead>
         <tbody>
             @forelse ($fallecidos as $fallecido)
@@ -145,9 +152,10 @@
         </tbody>
     </table>
 
-    <legend>Cirugias</legend>
+    <legend class="text-center">Cirugias</legend>
     <table class="table">
         <thead>
+            @if ($cirugias->count() > 0)
             <tr>
                 <th scope="col">Rut</th>
                 <th scope="col">Nombre</th>
@@ -155,6 +163,7 @@
                 <th scope="col">Cirugía</th>
                 <th scope="col">Hora</th>
             </tr>
+            @endif
         </thead>
         <tbody>
             @forelse ($cirugias as $cirugia)
@@ -186,7 +195,7 @@
         </tbody>
     </table>
 
-    <legend>Datos</legend>
+    <legend class="text-center">Datos</legend>
     <table class="table">
         <thead>
             <tr>
