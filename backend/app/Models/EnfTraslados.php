@@ -27,26 +27,23 @@ class EnfTraslados extends Model
         ->where('unidad_origen', '<>', 8)
         ->where('estado_traslado', '=', 'REC')
         ->orderBy('id_traslado', 'desc')
-        // ->first();
         ->take(2)
         ->get();
 
-        $ultimo_traslado = [];
-
         if ($traslados && count($traslados) == 2) {
-            $ultimo_traslado = [
+            return [
                 "cod_unidad_origen" => $traslados[0]->unidad_origen,
-                // "unidad_origen" => GenUnidad::getDescripcionUnidad($traslados[0]->unidad_origen)->desc_unidad,
-                "piezaigen" => $traslados[1]->cod_pieza,
+                "unidad_origen" => GenUnidad::getDescripcionUnidad($traslados[0]->unidad_origen)->desc_unidad,
+                "pieza_origen" => $traslados[1]->cod_pieza,
                 "cama_origen" => $traslados[1]->cod_cama,
                 "cod_unidad_destino" => $traslados[0]->unidad_destino,
-                // "unidad_destino" => GenUnidad::getDescripcionUnidad($traslados[0]->unidad_destino)->desc_unidad,
+                "unidad_destino" => GenUnidad::getDescripcionUnidad($traslados[0]->unidad_destino)->desc_unidad,
                 "pieza_destino" => $traslados[0]->cod_pieza,
                 "cama_destino" => $traslados[0]->cod_cama
             ];
+        } else {
+            return collect();
         }
-
-        return $ultimo_traslado;
     }
 
     public static function getDatosHospitalizado($id_ambulatorio)
@@ -56,12 +53,13 @@ class EnfTraslados extends Model
         if (!$ultimo_ingreso_vigente) {
             return collect();
         } else {
-            $ultima_ubicacion = DB::table('enf_traslados as b')
-            ->join('gen_unidad as g', 'b.UNIDAD_DESTINO', '=', 'g.cod_unidad')
+            $ultima_ubicacion = DB::connection('SINERGIA')
+            ->table('HOSINC.enf_traslados as b')
+            ->join('GENINC.gen_unidad as g', 'b.UNIDAD_DESTINO', '=', 'g.cod_unidad')
             ->select('b.UNIDAD_DESTINO as cod_unidad', 'b.COD_PIEZA', 'b.COD_CAMA', 'g.DESC_UNIDAD as destino', 'b.ID_INGRESO')
             ->whereIn('b.id_traslado', function($query) use ($ultimo_ingreso_vigente) {
                 $query->select(DB::raw('MAX(id_traslado)'))
-                    ->from('enf_traslados')
+                    ->from('HOSINC.enf_traslados')
                     ->where('id_ingreso', $ultimo_ingreso_vigente)
                     ->where('traslado_vigente', 'S');
             })

@@ -20,7 +20,6 @@ use App\Models\AdmIngresos;
 use App\Models\GenUnidad;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon as carbon;
-use Carbon\CarbonInterval;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Requests\CrearCambioTurnoRequest;
@@ -76,10 +75,10 @@ class EntregaTurno extends Controller
             ];
 
             return response()->json(['info_paciente' => $datos]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 "error" => "Se ha producido un error en la red o un error inesperado.",
-                "details" => $e
+                "details" => $e->getMessage()
             ]);
         }
     }
@@ -267,30 +266,37 @@ class EntregaTurno extends Controller
 
     public function obtenerCirugias($id): JsonResponse
     {
-        if (!$id) {
+        try {
+            if (!$id) {
+                return response()->json([
+                    "error" => "Hubo un error con el identificador del turno."
+                ], 400);
+            }
+
+            $cirugias = RpDetCtCirugias::getCirugiasTurno($id);
+            if (!$cirugias) {
+                return response()->json([
+                    "error" => "No se pudo encontrar los pacientes cirugias."
+                ], 400);
+            }
+
+            $cirugias = RpDetCtCirugias::getCirugiasTurno($id);
+            $cirugias->map(function ($cirugia) {
+                $paciente = Paciente::datosPacienteRut($cirugia['rut']);
+                $cirugia['nombre'] = $paciente->nombre_completo;
+                $cirugia['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
+                return $cirugia;
+            });
+
             return response()->json([
-                "error" => "Hubo un error con el identificador del turno."
-            ], 400);
-        }
-
-        $cirugias = RpDetCtCirugias::getCirugiasTurno($id);
-        if (!$cirugias) {
+                "cirugias" => $cirugias
+            ]);
+        } catch (\Throwable $e) {
             return response()->json([
-                "error" => "No se pudo encontrar los pacientes cirugias."
-            ], 400);
+                "error" => "Se ha producido un error en la red o un error inesperado.",
+                "details" => $e->getMessage()
+            ]);
         }
-
-        $cirugias = RpDetCtCirugias::getCirugiasTurno($id);
-        $cirugias->map(function ($cirugia) {
-            $paciente = Paciente::datosPacienteRut($cirugia['rut']);
-            $cirugia['nombre'] = $paciente->nombre_completo;
-            $cirugia['diagnostico'] = Paciente::traerDiagnostico($paciente->id_ambulatorio);
-            return $cirugia;
-        });
-
-        return response()->json([
-            "cirugias" => $cirugias
-        ]);
     }
 
     public function generarPdfTurno($id) //: BinaryFileResponse
