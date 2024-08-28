@@ -45,14 +45,7 @@ const agregarLineaTraslado = () => {
     v_run: "",
     nombre: "",
     diagnostico: "",
-    detalle: {
-      cod_unidad_origen: "",
-      pieza_origen: "",
-      cama_origen: "",
-      cod_unidad_destino: "",
-      pieza_destino: "",
-      cama_destino: "",
-    },
+    detalle: [],
     editable: true,
     error: {},
   });
@@ -75,11 +68,14 @@ const buscarTrasladoPacienteRut = async (rut, index) => {
     try {
       const response = await axios.get(`/entrega-turno/obtenerTrasladoPacienteRut/${rut}`);
       let data = response.data.info_traslados;
+      console.log(data);
       if (data != null) {
         props.form.traslados[index].nombre = data.nombre_completo;
         props.form.traslados[index].diagnostico = data.diagnostico;
-        if (data.detalle.length > 0) {
+        console.log(data.detalle);
+        if (data.detalle) {
           props.form.traslados[index].detalle = data.detalle;
+          console.log(props.form.traslados[index].detalle);
         }
       }
     } catch (err) {
@@ -241,6 +237,7 @@ if (props.updating) {
             <span> {{ traslado.diagnostico }}</span>
           </div>
           <div class="flex flex-col col-span-2">
+            {{  traslado }}
             <label>Desde:</label>
             <div class="flex flex-row">
               <div class="flex flex-col">

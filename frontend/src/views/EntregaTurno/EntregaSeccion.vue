@@ -32,6 +32,8 @@ const props = defineProps({
 
 const emit = defineEmits(["submit"]);
 
+const sinInfo = "Sin información";
+
 // Función para obtener un correlativo único
 const correlativoEntregados = () => new Date().getTime();
 
@@ -44,6 +46,7 @@ const agregarLineaEntrega = () => {
     nombre: "",
     diagnostico: "",
     problemas: "",
+    ubicacion: [],
     examenes: "",
     editable: true,
     error: {},
@@ -70,6 +73,7 @@ const buscarInfoPacienteRut = async (rut, index) => {
       if (data != null) {
         props.form.entregados[index].nombre = data.nombre_completo;
         props.form.entregados[index].diagnostico = data.diagnostico;
+        props.form.entregados[index].ubicacion = data.ubicacion;
         props.form.errors[`entregados.${index}.run`] = "";
       }
     } catch (err) {
@@ -133,14 +137,11 @@ if (props.updating) {
     </div>
     <div v-if="props.form?.entregados.length > 0" class="flex flex-col pt-2">
       <div
-        class="grid grid-cols-6 gap-4 p-2"
-        style="grid-template-columns: 2fr 2fr 2fr 2fr 2fr 1fr"
+        class="grid grid-cols-5 gap-4 p-2"
+        style="grid-template-columns: 2fr 2fr 2fr 2fr 1fr"
       >
         <div><Label class="font-black" for="run" value="Run" /></div>
-        <div><Label class="font-black" for="nombre" value="Nombre" /></div>
-        <div>
-          <Label class="font-black" for="diagnostico" value="Diagnóstico" />
-        </div>
+        <div><Label class="font-black" for="datos_paciente" value="Datos paciente" /></div>
         <div>
           <Label
             class="font-black"
@@ -164,8 +165,8 @@ if (props.updating) {
       >
         <hr class="my-2 border-t border-gray-600" />
         <div
-          class="grid grid-cols-6 gap-4 p-2"
-          style="grid-template-columns: 2fr 2fr 2fr 2fr 2fr 1fr"
+          class="grid grid-cols-5 gap-4 p-2"
+          style="grid-template-columns: 2fr 2fr 2fr 2fr 1fr"
         >
           <div class="flex flex-col md:flex-row">
             <div v-if="!entregado.editable" class="flex flex-col">
@@ -231,10 +232,21 @@ if (props.updating) {
             </div>
           </div>
           <div class="flex flex-col">
-            <div>{{ entregado.nombre }}</div>
-          </div>
-          <div class="flex flex-col">
-            <div>{{ entregado.diagnostico }}</div>
+            <div><b>Nombre:</b> {{ entregado.nombre ?? sinInfo }}</div>
+            <div><b>Diagnostico:</b> {{ entregado.diagnostico ?? sinInfo }}</div>
+            <div>
+              <div v-if="entregado.ubicacion && entregado.ubicacion.length > 0">
+                <div v-for="(ubicacion, uIndex) in entregado.ubicacion" :key="uIndex">
+                  <b>Ubicacion: </b>
+                  <b>Unidad:</b> {{ ubicacion.destino }}<br>
+                  <b>Pieza:</b> {{ ubicacion.cod_pieza }}
+                  <b>Cama:</b> {{ ubicacion.cod_cama }}<br>
+                </div>
+              </div>
+              <div v-else>
+                <b>Ubicación:</b> {{ sinInfo }}
+              </div>
+            </div>
           </div>
           <div class="flex flex-col">
             <TextArea

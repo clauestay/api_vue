@@ -50,10 +50,12 @@ const alertaPregunta = (ruta, titulo, form) => {
         title: titulo,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'Confirmar',
+        confirmButtonText: 'Continuar Editando',
         confirmButtonColor: 'green',
         denyButtonText: `Cancelar`,
-        cancelButtonColor: 'red'
+        cancelButtonColor: 'red',
+        allowEscapeKey: false,
+        allowOutsideClick: false
     }).then((result) => {
         if (result.isConfirmed) {
             router.push({ name: ruta, params: { id: form.parametro } });

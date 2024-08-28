@@ -13,6 +13,7 @@ import PrimaryButton from "@/components/PrimaryButton.vue";
 import { validate, clean, format } from "rut.js";
 import { minDate, maxDate } from "@/helpers/AyudaFechas.js";
 import Select from "primevue/select";
+import { alertaPregunta } from "@/helpers/AlertasSweetAlert";
 
 const props = defineProps({
   form: {
@@ -105,7 +106,7 @@ const validarTurnoExistente = (llegada, salida, medico_entrega) => {
       console.log({ data });
       if (response != null) {
         alertaPregunta(
-          "alertaPregunta/Editar",
+          "Editar",
           response.msg,
           {  parametro: response.parametro }
         );
@@ -120,18 +121,18 @@ if (!props.updating) {
   watch(
     [
       () => props.form.fecha_llegada,
-      // () => props.form.fecha_salida,
+      () => props.form.fecha_salida,
       () => props.form.medico_entrega,
     ],
     () => {
       if (
         props.form.fecha_llegada &&
-        // props.form.fecha_salida &&
+        props.form.fecha_salida &&
         props.form.medico_entrega
       ) {
         validarTurnoExistente(
           props.form.fecha_llegada,
-          // props.form.fecha_salida,
+          props.form.fecha_salida,
           props.form.medico_entrega
         );
       }
